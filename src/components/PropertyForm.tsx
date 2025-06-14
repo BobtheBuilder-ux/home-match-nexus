@@ -19,7 +19,7 @@ const PropertyForm = () => {
     bedrooms: "",
     bathrooms: "",
     area: "",
-    propertyType: "apartment"
+    propertyType: "apartment" as 'apartment' | 'house' | 'studio' | 'shared'
   });
   const [loading, setLoading] = useState(false);
   
@@ -50,7 +50,7 @@ const PropertyForm = () => {
         bedrooms: parseInt(formData.bedrooms) || 0,
         bathrooms: parseFloat(formData.bathrooms) || 0,
         area: parseInt(formData.area) || 0,
-        status: isDraft ? 'draft' : 'active',
+        status: (isDraft ? 'draft' : 'active') as 'active' | 'draft' | 'rented',
         images: [],
         agentId: user.uid,
         dateAdded: new Date().toISOString(),
