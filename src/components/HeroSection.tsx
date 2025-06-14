@@ -1,9 +1,10 @@
 
 import { useState } from "react";
-import { Search, MapPin, Calendar, Users } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
   const [searchData, setSearchData] = useState({
@@ -12,6 +13,19 @@ const HeroSection = () => {
     bedrooms: "",
     priceRange: ""
   });
+
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    
+    if (searchData.location) params.append('location', searchData.location);
+    if (searchData.propertyType) params.append('type', searchData.propertyType);
+    if (searchData.bedrooms) params.append('bedrooms', searchData.bedrooms);
+    if (searchData.priceRange) params.append('price', searchData.priceRange);
+    
+    navigate(`/find-rentals?${params.toString()}`);
+  };
 
   return (
     <section className="relative bg-gradient-to-br from-primary-50 via-white to-secondary-50 py-20 overflow-hidden">
@@ -84,7 +98,10 @@ const HeroSection = () => {
 
               {/* Search Button */}
               <div className="flex items-end">
-                <Button className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105">
+                <Button 
+                  onClick={handleSearch}
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
+                >
                   <Search className="w-4 h-4 mr-2" />
                   Search
                 </Button>

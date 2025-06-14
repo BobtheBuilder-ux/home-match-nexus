@@ -3,10 +3,24 @@ import { useState } from "react";
 import { Search, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Mock user state - in real app this would come from auth context
+  const user = null; // Change to { userType: 'AGENT' } to test agent view
+  const isAgent = user?.userType === 'AGENT';
+  
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/find-rentals?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
@@ -22,13 +36,15 @@ const Header = () => {
 
           {/* Desktop Search Bar */}
           <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
-            <div className="relative w-full">
+            <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 placeholder="Search by city, neighborhood, or address..."
                 className="pl-10 bg-neutral-50 border-neutral-200 focus:border-primary-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-            </div>
+            </form>
           </div>
 
           {/* Desktop Navigation */}
@@ -36,9 +52,11 @@ const Header = () => {
             <Link to="/find-rentals" className="text-neutral-700 hover:text-primary-600 transition-colors">
               Find Rentals
             </Link>
-            <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
-              List Property
-            </Link>
+            {isAgent && (
+              <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                List Property
+              </Link>
+            )}
             <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
               For Agents
             </Link>
@@ -71,20 +89,24 @@ const Header = () => {
         {isMenuOpen && (
           <div className="lg:hidden mt-4 py-4 border-t border-neutral-200 animate-fade-in">
             <div className="flex flex-col space-y-4">
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-4 h-4" />
                 <Input
                   placeholder="Search properties..."
                   className="pl-10 bg-neutral-50"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              </div>
+              </form>
               <nav className="flex flex-col space-y-3">
                 <Link to="/find-rentals" className="text-neutral-700 hover:text-primary-600 transition-colors">
                   Find Rentals
                 </Link>
-                <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                  List Property
-                </Link>
+                {isAgent && (
+                  <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                    List Property
+                  </Link>
+                )}
                 <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
                   For Agents
                 </Link>
