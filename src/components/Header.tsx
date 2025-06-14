@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Search, User, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,12 +13,12 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">HM</span>
             </div>
             <span className="text-xl font-poppins font-bold text-neutral-900">HomeMatch</span>
-          </div>
+          </Link>
 
           {/* Desktop Search Bar */}
           <div className="hidden md:flex items-center flex-1 max-w-md mx-8">
@@ -32,19 +33,29 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center space-x-6">
-            <a href="#" className="text-neutral-700 hover:text-primary-600 transition-colors">Find Rentals</a>
-            <a href="#" className="text-neutral-700 hover:text-primary-600 transition-colors">List Property</a>
-            <a href="#" className="text-neutral-700 hover:text-primary-600 transition-colors">For Agents</a>
+            <Link to="/find-rentals" className="text-neutral-700 hover:text-primary-600 transition-colors">
+              Find Rentals
+            </Link>
+            <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+              List Property
+            </Link>
+            <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
+              For Agents
+            </Link>
           </nav>
 
           {/* User Actions */}
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" className="hidden md:flex">
-              Log In
-            </Button>
-            <Button size="sm" className="bg-primary-600 hover:bg-primary-700">
-              Sign Up
-            </Button>
+            <Link to="/login">
+              <Button variant="ghost" size="sm" className="hidden md:flex">
+                Log In
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm" className="bg-primary-600 hover:bg-primary-700">
+                Sign Up
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="sm"
@@ -68,9 +79,15 @@ const Header = () => {
                 />
               </div>
               <nav className="flex flex-col space-y-3">
-                <a href="#" className="text-neutral-700 hover:text-primary-600 transition-colors">Find Rentals</a>
-                <a href="#" className="text-neutral-700 hover:text-primary-600 transition-colors">List Property</a>
-                <a href="#" className="text-neutral-700 hover:text-primary-600 transition-colors">For Agents</a>
+                <Link to="/find-rentals" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                  Find Rentals
+                </Link>
+                <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                  List Property
+                </Link>
+                <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                  For Agents
+                </Link>
               </nav>
             </div>
           </div>
