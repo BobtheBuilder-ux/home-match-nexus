@@ -10,7 +10,7 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   
   // Mock user state - in real app this would come from auth context
-  const user = null; // Change to { userType: 'AGENT' } to test agent view
+  const user = { userType: 'AGENT' }; // Change to null to test non-agent view
   const isAgent = user?.userType === 'AGENT';
   
   const navigate = useNavigate();
@@ -53,9 +53,14 @@ const Header = () => {
               Find Rentals
             </Link>
             {isAgent && (
-              <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                List Property
-              </Link>
+              <>
+                <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                  List Property
+                </Link>
+                <Link to="/agent-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                  Dashboard
+                </Link>
+              </>
             )}
             <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
               For Agents
@@ -103,9 +108,14 @@ const Header = () => {
                   Find Rentals
                 </Link>
                 {isAgent && (
-                  <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                    List Property
-                  </Link>
+                  <>
+                    <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                      List Property
+                    </Link>
+                    <Link to="/agent-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                      Dashboard
+                    </Link>
+                  </>
                 )}
                 <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
                   For Agents

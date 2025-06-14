@@ -10,6 +10,7 @@ import ListProperty from "./pages/ListProperty";
 import ForAgents from "./pages/ForAgents";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import AgentDashboard from "./pages/AgentDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/for-agents" element={<ForAgents />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/agent-dashboard" element={<AgentDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
