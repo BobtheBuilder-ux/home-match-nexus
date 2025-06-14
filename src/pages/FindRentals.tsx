@@ -1,22 +1,27 @@
 
 import { useState, useEffect } from "react";
-import { Search, Filter, MapPin } from "lucide-react";
+import { Search, Filter, MapPin, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import PropertyCard from "@/components/PropertyCard";
+import SearchFilters from "@/components/SearchFilters";
 
 const FindRentals = () => {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState({
     location: "",
     type: "",
     bedrooms: "",
-    price: ""
+    priceMin: 500,
+    priceMax: 5000,
+    amenities: [] as string[],
+    sortBy: "relevance"
   });
 
   // Initialize filters from URL parameters
@@ -24,10 +29,14 @@ const FindRentals = () => {
     const location = searchParams.get('location') || searchParams.get('search') || "";
     const type = searchParams.get('type') || "";
     const bedrooms = searchParams.get('bedrooms') || "";
-    const price = searchParams.get('price') || "";
     
     setSearchQuery(location);
-    setFilters({ location, type, bedrooms, price });
+    setFilters(prev => ({ 
+      ...prev, 
+      location, 
+      type, 
+      bedrooms 
+    }));
   }, [searchParams]);
 
   // Mock properties data - in real app this would be filtered based on search params
@@ -57,7 +66,7 @@ const FindRentals = () => {
     }
   ];
 
-  // Filter properties based on current filters
+  // Enhanced filtering logic
   const filteredProperties = properties.filter(property => {
     if (filters.location && !property.location.toLowerCase().includes(filters.location.toLowerCase())) {
       return false;
@@ -68,13 +77,50 @@ const FindRentals = () => {
     if (filters.bedrooms === 'studio' && property.bedrooms !== 0) {
       return false;
     }
+    if (property.price < filters.priceMin || property.price > filters.priceMax) {
+      return false;
+    }
+    if (filters.amenities.length > 0) {
+      const hasAllAmenities = filters.amenities.every(amenity => 
+        property.amenities.includes(amenity)
+      );
+      if (!hasAllAmenities) return false;
+    }
     return true;
+  });
+
+  // Sort properties
+  const sortedProperties = [...filteredProperties].sort((a, b) => {
+    switch (filters.sortBy) {
+      case 'price-low':
+        return a.price - b.price;
+      case 'price-high':
+        return b.price - a.price;
+      case 'size':
+        return b.area - a.area;
+      case 'newest':
+        return b.isNew ? 1 : -1;
+      default:
+        return 0;
+    }
   });
 
   const handleSearch = () => {
     console.log("Searching with query:", searchQuery);
-    // Update filters when search is triggered
     setFilters(prev => ({ ...prev, location: searchQuery }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      location: "",
+      type: "",
+      bedrooms: "",
+      priceMin: 500,
+      priceMax: 5000,
+      amenities: [],
+      sortBy: "relevance"
+    });
+    setSearchQuery("");
   };
 
   return (
@@ -110,97 +156,72 @@ const FindRentals = () => {
                 Search
               </Button>
             </div>
-
-            {showFilters && (
-              <div className="bg-white rounded-lg p-6 text-neutral-900">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Price Range</label>
-                    <select 
-                      className="w-full p-2 border rounded-lg"
-                      value={filters.price}
-                      onChange={(e) => setFilters(prev => ({ ...prev, price: e.target.value }))}
-                    >
-                      <option value="">Any Price</option>
-                      <option value="1000-2000">$1000 - $2000</option>
-                      <option value="2000-3000">$2000 - $3000</option>
-                      <option value="3000+">$3000+</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Bedrooms</label>
-                    <select 
-                      className="w-full p-2 border rounded-lg"
-                      value={filters.bedrooms}
-                      onChange={(e) => setFilters(prev => ({ ...prev, bedrooms: e.target.value }))}
-                    >
-                      <option value="">Any</option>
-                      <option value="studio">Studio</option>
-                      <option value="1">1 Bedroom</option>
-                      <option value="2">2+ Bedrooms</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Property Type</label>
-                    <select 
-                      className="w-full p-2 border rounded-lg"
-                      value={filters.type}
-                      onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-                    >
-                      <option value="">Any Type</option>
-                      <option value="apartment">Apartment</option>
-                      <option value="house">House</option>
-                      <option value="studio">Studio</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Amenities</label>
-                    <select className="w-full p-2 border rounded-lg">
-                      <option>Any Amenities</option>
-                      <option>Pet Friendly</option>
-                      <option>Parking</option>
-                      <option>Gym</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-bold text-neutral-900">Available Properties</h2>
-            <p className="text-neutral-600">
-              {filteredProperties.length} properties found
-              {filters.location && ` for "${filters.location}"`}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <MapPin className="w-4 h-4 mr-2" />
-              Map View
-            </Button>
-          </div>
-        </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Filters Sidebar */}
+          {showFilters && (
+            <div className="lg:col-span-1">
+              <SearchFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                onClearFilters={handleClearFilters}
+              />
+            </div>
+          )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </div>
+          {/* Main Content */}
+          <div className={showFilters ? "lg:col-span-3" : "lg:col-span-4"}>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-neutral-900">Available Properties</h2>
+                <p className="text-neutral-600">
+                  {sortedProperties.length} properties found
+                  {filters.location && ` for "${filters.location}"`}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="sm">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Map View
+                </Button>
+              </div>
+            </div>
 
-        {filteredProperties.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-neutral-600 text-lg">No properties found matching your criteria.</p>
-            <p className="text-neutral-500">Try adjusting your search filters.</p>
+            <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'grid-cols-1 gap-4'}`}>
+              {sortedProperties.map((property) => (
+                <PropertyCard key={property.id} property={property} />
+              ))}
+            </div>
+
+            {sortedProperties.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-neutral-600 text-lg">No properties found matching your criteria.</p>
+                <p className="text-neutral-500">Try adjusting your search filters.</p>
+              </div>
+            )}
+
+            <div className="text-center mt-12">
+              <Button size="lg">Load More Properties</Button>
+            </div>
           </div>
-        )}
-
-        <div className="text-center mt-12">
-          <Button size="lg">Load More Properties</Button>
         </div>
       </div>
 
