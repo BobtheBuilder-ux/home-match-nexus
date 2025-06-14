@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
@@ -9,11 +8,13 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Bed, Bath, Square, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -33,6 +34,10 @@ const PropertyDetail = () => {
 
     fetchProperty();
   }, [id]);
+
+  const handleApplyNow = () => {
+    navigate(`/apply/${id}`);
+  };
 
   if (loading) {
     return (
@@ -130,7 +135,10 @@ const PropertyDetail = () => {
                   </div>
                   
                   <div className="space-y-3 mb-6">
-                    <Button className="w-full" size="lg">
+                    <Button className="w-full" size="lg" onClick={handleApplyNow}>
+                      Apply Now
+                    </Button>
+                    <Button variant="outline" className="w-full" size="lg">
                       Contact Agent
                     </Button>
                     <Button variant="outline" className="w-full" size="lg">
