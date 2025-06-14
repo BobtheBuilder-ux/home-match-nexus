@@ -1,11 +1,26 @@
 
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Login = () => {
-  const handleGoogleSignIn = () => {
-    console.log("Google sign in clicked");
-    // TODO: Implement Google OAuth
+  const { signInWithGoogle, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error("Sign in failed:", error);
+    }
   };
 
   return (

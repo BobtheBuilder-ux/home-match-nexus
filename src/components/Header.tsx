@@ -1,17 +1,18 @@
 
 import { useState } from "react";
-import { Search, User, Menu, X } from "lucide-react";
+import { Search, User, Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, logout } = useAuth();
   
-  // Mock user state - in real app this would come from auth context
-  const user = { userType: 'AGENT' }; // Change to null to test non-agent view
-  const isAgent = user?.userType === 'AGENT';
+  // Mock agent check - in real app this would come from user profile in database
+  const isAgent = user?.email?.includes('agent') || false;
   
   const navigate = useNavigate();
 
@@ -19,6 +20,15 @@ const Header = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/find-rentals?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
@@ -69,16 +79,39 @@ const Header = () => {
 
           {/* User Actions */}
           <div className="flex items-center space-x-3">
-            <Link to="/login">
-              <Button variant="ghost" size="sm" className="hidden md:flex">
-                Log In
-              </Button>
-            </Link>
-            <Link to="/signup">
-              <Button size="sm" className="bg-primary-600 hover:bg-primary-700">
-                Sign Up
-              </Button>
-            </Link>
+            {user ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  <img 
+                    src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=6366f1&color=fff`} 
+                    alt={user.displayName || 'User'} 
+                    className="w-8 h-8 rounded-full"
+                  />
+                  <span className="hidden md:block text-sm text-neutral-700">{user.displayName}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="text-neutral-600 hover:text-neutral-900"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/login">
+                  <Button variant="ghost" size="sm" className="hidden md:flex">
+                    Log In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button size="sm" className="bg-primary-600 hover:bg-primary-700">
+                    Sign Up
+                  </Button>
+                </Link>
+              </>
+            )}
             <Button
               variant="ghost"
               size="sm"

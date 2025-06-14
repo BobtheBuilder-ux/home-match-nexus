@@ -1,0 +1,19 @@
+
+export interface Property {
+  id: string;
+  title: string;
+  description: string;
+  address: string;
+  city: string;
+  state: string;
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  area: number;
+  propertyType: 'apartment' | 'house' | 'studio' | 'shared';
+  status: 'active' | 'draft' | 'rented';
+  images: string[];
+  agentId: string;
+  dateAdded: string;
+  dateUpdated: string;
+}
