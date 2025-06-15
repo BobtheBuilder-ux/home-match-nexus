@@ -19,7 +19,7 @@ export const usePropertyFilters = (properties: Property[], filters: Filters) => 
     // Filter properties
     const filtered = properties.filter(property => {
       // Location filter
-      if (filters.location) {
+      if (filters.location && filters.location.trim()) {
         const locationMatch = 
           property.city.toLowerCase().includes(filters.location.toLowerCase()) ||
           property.state.toLowerCase().includes(filters.location.toLowerCase()) ||
@@ -34,10 +34,13 @@ export const usePropertyFilters = (properties: Property[], filters: Filters) => 
       
       // Bedrooms filter
       if (filters.bedrooms && filters.bedrooms !== 'any') {
-        if (filters.bedrooms === 'studio' && property.bedrooms !== 0) {
-          return false;
-        } else if (filters.bedrooms !== 'studio' && property.bedrooms !== parseInt(filters.bedrooms)) {
-          return false;
+        if (filters.bedrooms === 'studio') {
+          if (property.bedrooms !== 0) return false;
+        } else if (filters.bedrooms === '4+') {
+          if (property.bedrooms < 4) return false;
+        } else {
+          const bedroomCount = parseInt(filters.bedrooms);
+          if (property.bedrooms !== bedroomCount) return false;
         }
       }
       
