@@ -42,6 +42,7 @@ const App = () => (
             <Route path="/agent-login" element={<AgentLogin />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/signup" element={<SignUp />} />
+            <Route path="/for-agents" element={<ForAgents />} />
 
             {/* All routes BELOW this require authentication */}
             <Route
@@ -73,14 +74,6 @@ const App = () => (
               element={
                 <RequireAuth>
                   <ShortletListings />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/for-agents"
-              element={
-                <RequireAuth>
-                  <ForAgents />
                 </RequireAuth>
               }
             />
