@@ -9,7 +9,246 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          application_date: string
+          created_at: string
+          documents: Json | null
+          emergency_contacts: Json | null
+          employment_status: string | null
+          id: string
+          monthly_income: number | null
+          move_in_date: string | null
+          notes: string | null
+          property_id: string | null
+          status: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          application_date?: string
+          created_at?: string
+          documents?: Json | null
+          emergency_contacts?: Json | null
+          employment_status?: string | null
+          id?: string
+          monthly_income?: number | null
+          move_in_date?: string | null
+          notes?: string | null
+          property_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          application_date?: string
+          created_at?: string
+          documents?: Json | null
+          emergency_contacts?: Json | null
+          employment_status?: string | null
+          id?: string
+          monthly_income?: number | null
+          move_in_date?: string | null
+          notes?: string | null
+          property_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      featured_requests: {
+        Row: {
+          agent_id: string | null
+          id: string
+          payment_id: string | null
+          property_id: string | null
+          property_title: string
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          id?: string
+          payment_id?: string | null
+          property_id?: string | null
+          property_title: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          id?: string
+          payment_id?: string | null
+          property_id?: string | null
+          property_title?: string
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_requests_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          agent_id: string | null
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          paystack_reference: string
+          property_id: string | null
+          property_title: string
+          status: string | null
+          transaction_date: string
+          webhook_verified: boolean | null
+        }
+        Insert: {
+          agent_id?: string | null
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          paystack_reference: string
+          property_id?: string | null
+          property_title: string
+          status?: string | null
+          transaction_date?: string
+          webhook_verified?: boolean | null
+        }
+        Update: {
+          agent_id?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          paystack_reference?: string
+          property_id?: string | null
+          property_title?: string
+          status?: string | null
+          transaction_date?: string
+          webhook_verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string
+          id: string
+          is_approved: boolean | null
+          photo_url: string | null
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email: string
+          id: string
+          is_approved?: boolean | null
+          photo_url?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          id?: string
+          is_approved?: boolean | null
+          photo_url?: string | null
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          agent_id: string | null
+          amenities: string[] | null
+          bathrooms: number | null
+          bedrooms: number | null
+          created_at: string
+          description: string | null
+          id: string
+          images: string[] | null
+          is_featured: boolean | null
+          location: string
+          price: number
+          property_type: string
+          size_sqft: number | null
+          status: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          location: string
+          price: number
+          property_type: string
+          size_sqft?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_featured?: boolean | null
+          location?: string
+          price?: number
+          property_type?: string
+          size_sqft?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

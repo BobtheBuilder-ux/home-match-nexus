@@ -1,14 +1,32 @@
 
-import { db } from '@/lib/firebase';
-import { collection, doc, addDoc, getDocs, query, where, orderBy, updateDoc } from 'firebase/firestore';
-import { TenantApplication } from '@/types/application';
+import { supabase } from '@/integrations/supabase/client';
 
-const APPLICATIONS_COLLECTION = 'applications';
+export interface TenantApplication {
+  id: string;
+  property_id: string;
+  user_id: string;
+  status: 'pending' | 'approved' | 'rejected';
+  application_date: string;
+  move_in_date?: string;
+  monthly_income?: number;
+  employment_status?: string;
+  emergency_contacts?: any;
+  documents?: any;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
 
-export const submitApplication = async (applicationData: Omit<TenantApplication, 'id'>) => {
+export const submitApplication = async (applicationData: Omit<TenantApplication, 'id' | 'created_at' | 'updated_at'>) => {
   try {
-    const docRef = await addDoc(collection(db, APPLICATIONS_COLLECTION), applicationData);
-    return docRef.id;
+    const { data, error } = await supabase
+      .from('applications')
+      .insert([applicationData])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data.id;
   } catch (error) {
     console.error('Error submitting application:', error);
     throw error;
@@ -17,19 +35,14 @@ export const submitApplication = async (applicationData: Omit<TenantApplication,
 
 export const getApplicationsByProperty = async (propertyId: string) => {
   try {
-    const q = query(
-      collection(db, APPLICATIONS_COLLECTION),
-      where('propertyId', '==', propertyId),
-      orderBy('submittedAt', 'desc')
-    );
-    
-    const querySnapshot = await getDocs(q);
-    const applications: TenantApplication[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as TenantApplication));
-    
-    return applications;
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('property_id', propertyId)
+      .order('application_date', { ascending: false });
+
+    if (error) throw error;
+    return data as TenantApplication[];
   } catch (error) {
     console.error('Error getting applications:', error);
     throw error;
@@ -38,19 +51,14 @@ export const getApplicationsByProperty = async (propertyId: string) => {
 
 export const getApplicationsByApplicant = async (applicantId: string) => {
   try {
-    const q = query(
-      collection(db, APPLICATIONS_COLLECTION),
-      where('applicantId', '==', applicantId),
-      orderBy('submittedAt', 'desc')
-    );
-    
-    const querySnapshot = await getDocs(q);
-    const applications: TenantApplication[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as TenantApplication));
-    
-    return applications;
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('user_id', applicantId)
+      .order('application_date', { ascending: false });
+
+    if (error) throw error;
+    return data as TenantApplication[];
   } catch (error) {
     console.error('Error getting user applications:', error);
     throw error;
@@ -62,11 +70,12 @@ export const updateApplicationStatus = async (
   status: TenantApplication['status']
 ) => {
   try {
-    const applicationRef = doc(db, APPLICATIONS_COLLECTION, applicationId);
-    await updateDoc(applicationRef, { 
-      status, 
-      reviewedAt: new Date().toISOString() 
-    });
+    const { error } = await supabase
+      .from('applications')
+      .update({ status })
+      .eq('id', applicationId);
+
+    if (error) throw error;
   } catch (error) {
     console.error('Error updating application status:', error);
     throw error;

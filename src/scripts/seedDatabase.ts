@@ -1,24 +1,41 @@
 
-import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { supabase } from '@/integrations/supabase/client';
 import { generateProperties } from './utils/propertyGenerator';
 
 export const seedDatabase = async () => {
   try {
-    console.log('Starting database seeding with Firebase...');
+    console.log('Starting database seeding with Supabase...');
     
-    // 1. Create Properties
+    // Generate sample properties
     const sampleProperties = generateProperties(55);
-    const createdProperties = [];
     
-    for (const property of sampleProperties) {
-      const docRef = await addDoc(collection(db, 'properties'), property);
-      createdProperties.push({ id: docRef.id, ...property });
-      console.log(`Created property: ${property.title} - ₦${property.price.toLocaleString()}`);
+    // Insert properties into Supabase
+    const { data, error } = await supabase
+      .from('properties')
+      .insert(sampleProperties.map(property => ({
+        title: property.title,
+        description: property.description,
+        location: `${property.address}, ${property.city}, ${property.state}`,
+        price: property.price,
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        size_sqft: property.area,
+        property_type: property.propertyType,
+        status: property.status === 'active' ? 'available' : property.status === 'rented' ? 'rented' : 'available',
+        images: property.images,
+        amenities: [],
+        agent_id: property.agentId,
+        is_featured: property.isFeatured || false
+      })))
+      .select();
+
+    if (error) {
+      console.error('Error seeding properties:', error);
+      throw error;
     }
 
-    console.log('✅ Database seeding completed successfully with Firebase!');
-    console.log(`Created ${createdProperties.length} properties in Abuja, Nigeria`);
+    console.log('✅ Database seeding completed successfully with Supabase!');
+    console.log(`Created ${data?.length || 0} properties in Abuja, Nigeria`);
     console.log('💰 All prices are in Nigerian Naira (₦)');
     
   } catch (error) {
@@ -27,23 +44,24 @@ export const seedDatabase = async () => {
   }
 };
 
-// Helper function to clear all data (use with caution!)
 export const clearDatabase = async () => {
   try {
-    console.log('⚠️  Clearing Firebase database...');
+    console.log('⚠️  Clearing Supabase database...');
     
-    const collections = ['properties', 'users', 'applications', 'conversations', 'messages', 'featuredRequests'];
+    const tables = ['payments', 'featured_requests', 'applications', 'properties'];
 
-    for (const collectionName of collections) {
-      const querySnapshot = await getDocs(collection(db, collectionName));
-      const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
-      await Promise.all(deletePromises);
-      console.log(`Cleared ${querySnapshot.docs.length} documents from ${collectionName}`);
+    for (const table of tables) {
+      const { error } = await supabase.from(table).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error) {
+        console.error(`Error clearing ${table}:`, error);
+      } else {
+        console.log(`Cleared ${table} table`);
+      }
     }
     
-    console.log('✅ Firebase database cleared successfully!');
+    console.log('✅ Supabase database cleared successfully!');
   } catch (error) {
-    console.error('❌ Error clearing Firebase database:', error);
+    console.error('❌ Error clearing Supabase database:', error);
     throw error;
   }
 };

@@ -1,22 +1,19 @@
-import { db } from '@/lib/firebase';
-import { collection, doc, addDoc, updateDoc, getDocs, query, where } from 'firebase/firestore';
+
+import { supabase } from '@/integrations/supabase/client';
 
 export interface PaymentRecord {
   id?: string;
-  propertyId: string;
-  agentId: string;
-  propertyTitle: string;
+  property_id: string;
+  agent_id: string;
+  property_title: string;
   amount: number;
   currency: string;
   status: 'pending' | 'success' | 'failed';
-  paystackReference: string;
-  transactionDate: string;
-  featuredRequestId?: string;
-  verifiedAt?: string;
-  webhookVerified?: boolean;
+  paystack_reference: string;
+  transaction_date: string;
+  webhook_verified?: boolean;
+  created_at?: string;
 }
-
-const PAYMENTS_COLLECTION = 'payments';
 
 export const initializePaystackPayment = (
   email: string,
@@ -26,14 +23,13 @@ export const initializePaystackPayment = (
 ) => {
   return new Promise((resolve, reject) => {
     const handler = (window as any).PaystackPop.setup({
-      key: 'pk_test_3a33a1ac61644c0a206ea31d30932396c5fe1fd3', // Your actual Paystack public key
+      key: 'pk_test_3a33a1ac61644c0a206ea31d30932396c5fe1fd3',
       email: email,
-      amount: amount * 100, // Paystack expects amount in kobo
+      amount: amount * 100,
       currency: 'NGN',
       ref: reference,
       metadata: metadata,
       callback: function(response: any) {
-        // Payment completed - but we'll wait for webhook verification
         console.log('Payment completed, awaiting webhook verification:', response);
         resolve(response);
       },
@@ -45,13 +41,19 @@ export const initializePaystackPayment = (
   });
 };
 
-export const createPaymentRecord = async (paymentData: Omit<PaymentRecord, 'id'>) => {
+export const createPaymentRecord = async (paymentData: Omit<PaymentRecord, 'id' | 'created_at'>) => {
   try {
-    const docRef = await addDoc(collection(db, PAYMENTS_COLLECTION), {
-      ...paymentData,
-      webhookVerified: false
-    });
-    return docRef.id;
+    const { data, error } = await supabase
+      .from('payments')
+      .insert([{
+        ...paymentData,
+        webhook_verified: false
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data.id;
   } catch (error) {
     console.error('Error creating payment record:', error);
     throw error;
@@ -65,18 +67,21 @@ export const updatePaymentStatus = async (
   webhookVerified: boolean = false
 ) => {
   try {
-    const paymentRef = doc(db, PAYMENTS_COLLECTION, paymentId);
     const updateData: any = { 
       status,
-      webhookVerified,
-      ...(paystackReference && { paystackReference })
+      webhook_verified: webhookVerified
     };
     
-    if (webhookVerified && status === 'success') {
-      updateData.verifiedAt = new Date().toISOString();
+    if (paystackReference) {
+      updateData.paystack_reference = paystackReference;
     }
-    
-    await updateDoc(paymentRef, updateData);
+
+    const { error } = await supabase
+      .from('payments')
+      .update(updateData)
+      .eq('id', paymentId);
+
+    if (error) throw error;
   } catch (error) {
     console.error('Error updating payment status:', error);
     throw error;
@@ -85,33 +90,35 @@ export const updatePaymentStatus = async (
 
 export const verifyPaymentWithWebhook = async (reference: string): Promise<boolean> => {
   try {
-    // Poll for webhook verification (max 30 seconds)
     const maxAttempts = 30;
     let attempts = 0;
     
     while (attempts < maxAttempts) {
-      const q = query(collection(db, PAYMENTS_COLLECTION), where('paystackReference', '==', reference));
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-        const paymentDoc = querySnapshot.docs[0];
-        const paymentData = paymentDoc.data() as PaymentRecord;
-        
-        if (paymentData.webhookVerified && paymentData.status === 'success') {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .eq('paystack_reference', reference)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking payment:', error);
+        return false;
+      }
+
+      if (data) {
+        if (data.webhook_verified && data.status === 'success') {
           return true;
         }
         
-        if (paymentData.status === 'failed') {
+        if (data.status === 'failed') {
           return false;
         }
       }
       
-      // Wait 1 second before next check
       await new Promise(resolve => setTimeout(resolve, 1000));
       attempts++;
     }
     
-    // Timeout - webhook not received
     console.warn('Webhook verification timeout for reference:', reference);
     return false;
   } catch (error) {
@@ -122,15 +129,14 @@ export const verifyPaymentWithWebhook = async (reference: string): Promise<boole
 
 export const getPaymentsByAgent = async (agentId: string) => {
   try {
-    const q = query(collection(db, PAYMENTS_COLLECTION), where('agentId', '==', agentId));
-    const querySnapshot = await getDocs(q);
-    
-    const payments: PaymentRecord[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as PaymentRecord));
-    
-    return payments;
+    const { data, error } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('agent_id', agentId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data as PaymentRecord[];
   } catch (error) {
     console.error('Error getting payments:', error);
     throw error;
