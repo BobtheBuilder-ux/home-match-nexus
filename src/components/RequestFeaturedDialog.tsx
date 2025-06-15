@@ -9,10 +9,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Star } from "lucide-react";
+import { Star, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { requestFeaturedProperty } from "@/services/featuredPropertyService";
 import { useAuth } from "@/contexts/AuthContext";
+import { 
+  initializePaystackPayment, 
+  createPaymentRecord, 
+  updatePaymentStatus,
+  generatePaymentReference
+} from "@/services/paymentService";
 
 interface RequestFeaturedDialogProps {
   open: boolean;
@@ -30,22 +36,63 @@ const RequestFeaturedDialog = ({
   currentStatus = 'none'
 }: RequestFeaturedDialogProps) => {
   const [loading, setLoading] = useState(false);
+  const [paymentStep, setPaymentStep] = useState<'request' | 'payment'>('request');
   const { user } = useAuth();
 
-  const handleRequest = async () => {
+  const FEATURED_FEE = 2000; // 2,000 Naira
+
+  const handlePayment = async () => {
     if (!user) {
-      toast.error("Please sign in to request featured status");
+      toast.error("Please sign in to continue");
       return;
     }
 
     setLoading(true);
     try {
+      const reference = generatePaymentReference();
+      
+      // Create payment record first
+      const paymentRecord = {
+        propertyId,
+        agentId: user.uid,
+        propertyTitle,
+        amount: FEATURED_FEE,
+        currency: 'NGN',
+        status: 'pending' as const,
+        paystackReference: reference,
+        transactionDate: new Date().toISOString()
+      };
+
+      const paymentId = await createPaymentRecord(paymentRecord);
+
+      // Initialize Paystack payment
+      const response = await initializePaystackPayment(
+        user.email || '',
+        FEATURED_FEE,
+        reference,
+        {
+          propertyId,
+          propertyTitle,
+          paymentId,
+          agentId: user.uid
+        }
+      );
+
+      console.log('Payment response:', response);
+
+      // Update payment status to success
+      await updatePaymentStatus(paymentId, 'success', reference);
+
+      // Create featured request after successful payment
       await requestFeaturedProperty(propertyId, user.uid, propertyTitle);
-      toast.success("Featured request submitted successfully! We'll review it within 24 hours.");
+
+      toast.success("Payment successful! Your featured request has been submitted.");
       onOpenChange(false);
+      setPaymentStep('request');
+
     } catch (error) {
-      console.error('Error requesting featured status:', error);
-      toast.error("Failed to submit request. Please try again.");
+      console.error('Payment failed:', error);
+      toast.error("Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -84,15 +131,30 @@ const RequestFeaturedDialog = ({
             {getStatusMessage()}
           </p>
           
-          {canRequest && (
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h4 className="font-medium text-blue-900 mb-2">Featured Benefits:</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Priority placement in search results</li>
-                <li>• Display in featured properties section</li>
-                <li>• Increased visibility to potential tenants</li>
-                <li>• Special "Featured" badge on your listing</li>
-              </ul>
+          {canRequest && paymentStep === 'request' && (
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-2">Featured Benefits:</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• Priority placement in search results</li>
+                  <li>• Display in featured properties section</li>
+                  <li>• Increased visibility to potential tenants</li>
+                  <li>• Special "Featured" badge on your listing</li>
+                </ul>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <CreditCard className="w-4 h-4 text-yellow-600" />
+                  <h4 className="font-medium text-yellow-800">Payment Required</h4>
+                </div>
+                <p className="text-sm text-yellow-700">
+                  Featured listing fee: <span className="font-bold">₦{FEATURED_FEE.toLocaleString()}</span>
+                </p>
+                <p className="text-xs text-yellow-600 mt-1">
+                  Secure payment via Paystack
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -102,8 +164,12 @@ const RequestFeaturedDialog = ({
             Cancel
           </Button>
           {canRequest && (
-            <Button onClick={handleRequest} disabled={loading}>
-              {loading ? "Submitting..." : "Request Featured Status"}
+            <Button 
+              onClick={handlePayment} 
+              disabled={loading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {loading ? "Processing..." : `Pay ₦${FEATURED_FEE.toLocaleString()} & Request Featured`}
             </Button>
           )}
         </DialogFooter>
