@@ -1,6 +1,7 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID } from "@/lib/appwrite";
+import { db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 import { Property } from "@/types/property";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -26,22 +27,17 @@ const PropertyDetail = () => {
       
       try {
         console.log('Fetching property with ID:', id);
-        const response = await databases.getDocument(
-          DATABASE_ID,
-          PROPERTIES_COLLECTION_ID,
-          id
-        );
+        const propertyRef = doc(db, 'properties', id);
+        const propertySnap = await getDoc(propertyRef);
         
-        console.log('Property response:', response);
-        
-        // Transform the Appwrite document to match our Property interface
-        const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = response;
-        const propertyData: Property = {
-          id: $id,
-          ...data
-        } as Property;
-        
-        setProperty(propertyData);
+        if (propertySnap.exists()) {
+          const propertyData = { id: propertySnap.id, ...propertySnap.data() } as Property;
+          console.log('Property response:', propertyData);
+          setProperty(propertyData);
+        } else {
+          console.log('Property not found');
+          setProperty(null);
+        }
       } catch (error) {
         console.error('Error fetching property:', error);
       } finally {
