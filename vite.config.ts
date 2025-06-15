@@ -10,15 +10,27 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     watch: {
-      // Reduce the number of files being watched
+      // More restrictive file watching to prevent EMFILE errors
       ignored: [
         '**/node_modules/**',
         '**/.git/**',
         '**/dist/**',
         '**/build/**',
         '**/*.log',
-        '**/coverage/**'
-      ]
+        '**/coverage/**',
+        '**/tmp/**',
+        '**/temp/**',
+        '**/.DS_Store',
+        '**/Thumbs.db'
+      ],
+      // Reduce polling frequency
+      usePolling: false,
+      // Limit the number of files being watched
+      followSymlinks: false
+    },
+    // Reduce the number of files being watched by fs
+    fs: {
+      strict: false
     }
   },
   plugins: [
@@ -33,6 +45,20 @@ export default defineConfig(({ mode }) => ({
   },
   // Optimize dependency pre-bundling
   optimizeDeps: {
-    exclude: ['lovable-tagger']
+    exclude: ['lovable-tagger'],
+    // Force pre-bundling of commonly used packages
+    include: ['react', 'react-dom']
+  },
+  // Reduce build complexity
+  build: {
+    // Reduce the number of chunks to minimize file handles
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          ui: ['@radix-ui/react-tabs', '@radix-ui/react-dialog']
+        }
+      }
+    }
   }
 }));
