@@ -1,15 +1,6 @@
 
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy 
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { databases, DATABASE_ID, FEATURED_REQUESTS_COLLECTION_ID } from '@/lib/appwrite';
+import { ID, Query } from 'appwrite';
 
 export interface FeaturedRequest {
   id?: string;
@@ -21,8 +12,6 @@ export interface FeaturedRequest {
   adminNotes?: string;
 }
 
-const FEATURED_REQUESTS_COLLECTION = 'featuredRequests';
-
 export const requestFeaturedProperty = async (propertyId: string, agentId: string, propertyTitle: string) => {
   try {
     const requestData: Omit<FeaturedRequest, 'id'> = {
@@ -33,8 +22,13 @@ export const requestFeaturedProperty = async (propertyId: string, agentId: strin
       status: 'pending'
     };
     
-    const docRef = await addDoc(collection(db, FEATURED_REQUESTS_COLLECTION), requestData);
-    return docRef.id;
+    const response = await databases.createDocument(
+      DATABASE_ID,
+      FEATURED_REQUESTS_COLLECTION_ID,
+      ID.unique(),
+      requestData
+    );
+    return response.$id;
   } catch (error) {
     console.error('Error requesting featured property:', error);
     throw error;
@@ -43,17 +37,16 @@ export const requestFeaturedProperty = async (propertyId: string, agentId: strin
 
 export const getFeaturedRequests = async () => {
   try {
-    const q = query(
-      collection(db, FEATURED_REQUESTS_COLLECTION), 
-      orderBy('requestDate', 'desc')
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      FEATURED_REQUESTS_COLLECTION_ID,
+      [Query.orderDesc('requestDate')]
     );
     
-    const querySnapshot = await getDocs(q);
-    const requests: FeaturedRequest[] = [];
-    
-    querySnapshot.forEach((doc) => {
-      requests.push({ id: doc.id, ...doc.data() } as FeaturedRequest);
-    });
+    const requests: FeaturedRequest[] = response.documents.map(doc => ({
+      id: doc.$id,
+      ...doc
+    } as FeaturedRequest));
     
     return requests;
   } catch (error) {
@@ -68,12 +61,16 @@ export const updateFeaturedRequestStatus = async (
   adminNotes?: string
 ) => {
   try {
-    const requestRef = doc(db, FEATURED_REQUESTS_COLLECTION, requestId);
-    await updateDoc(requestRef, { 
-      status, 
-      adminNotes: adminNotes || '',
-      updatedDate: new Date().toISOString()
-    });
+    await databases.updateDocument(
+      DATABASE_ID,
+      FEATURED_REQUESTS_COLLECTION_ID,
+      requestId,
+      { 
+        status, 
+        adminNotes: adminNotes || '',
+        updatedDate: new Date().toISOString()
+      }
+    );
   } catch (error) {
     console.error('Error updating featured request:', error);
     throw error;

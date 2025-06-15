@@ -1,24 +1,17 @@
 
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy 
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID } from '@/lib/appwrite';
+import { ID, Query } from 'appwrite';
 import { Property } from '@/types/property';
-
-const PROPERTIES_COLLECTION = 'properties';
 
 export const addProperty = async (propertyData: Omit<Property, 'id'>) => {
   try {
-    const docRef = await addDoc(collection(db, PROPERTIES_COLLECTION), propertyData);
-    return docRef.id;
+    const response = await databases.createDocument(
+      DATABASE_ID,
+      PROPERTIES_COLLECTION_ID,
+      ID.unique(),
+      propertyData
+    );
+    return response.$id;
   } catch (error) {
     console.error('Error adding property:', error);
     throw error;
@@ -27,18 +20,22 @@ export const addProperty = async (propertyData: Omit<Property, 'id'>) => {
 
 export const getProperties = async (filters?: { city?: string; maxPrice?: number; minBedrooms?: number }) => {
   try {
-    let q = query(collection(db, PROPERTIES_COLLECTION), orderBy('dateAdded', 'desc'));
+    const queries = [Query.orderDesc('dateAdded')];
     
     if (filters?.city) {
-      q = query(q, where('city', '==', filters.city));
+      queries.push(Query.equal('city', filters.city));
     }
     
-    const querySnapshot = await getDocs(q);
-    const properties: Property[] = [];
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      PROPERTIES_COLLECTION_ID,
+      queries
+    );
     
-    querySnapshot.forEach((doc) => {
-      properties.push({ id: doc.id, ...doc.data() } as Property);
-    });
+    const properties: Property[] = response.documents.map(doc => ({
+      id: doc.$id,
+      ...doc
+    } as Property));
     
     return properties;
   } catch (error) {
@@ -49,18 +46,19 @@ export const getProperties = async (filters?: { city?: string; maxPrice?: number
 
 export const getPropertiesByAgent = async (agentId: string) => {
   try {
-    const q = query(
-      collection(db, PROPERTIES_COLLECTION), 
-      where('agentId', '==', agentId),
-      orderBy('dateAdded', 'desc')
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      PROPERTIES_COLLECTION_ID,
+      [
+        Query.equal('agentId', agentId),
+        Query.orderDesc('dateAdded')
+      ]
     );
     
-    const querySnapshot = await getDocs(q);
-    const properties: Property[] = [];
-    
-    querySnapshot.forEach((doc) => {
-      properties.push({ id: doc.id, ...doc.data() } as Property);
-    });
+    const properties: Property[] = response.documents.map(doc => ({
+      id: doc.$id,
+      ...doc
+    } as Property));
     
     return properties;
   } catch (error) {
@@ -71,8 +69,12 @@ export const getPropertiesByAgent = async (agentId: string) => {
 
 export const updateProperty = async (propertyId: string, updates: Partial<Property>) => {
   try {
-    const propertyRef = doc(db, PROPERTIES_COLLECTION, propertyId);
-    await updateDoc(propertyRef, { ...updates, dateUpdated: new Date().toISOString() });
+    await databases.updateDocument(
+      DATABASE_ID,
+      PROPERTIES_COLLECTION_ID,
+      propertyId,
+      { ...updates, dateUpdated: new Date().toISOString() }
+    );
   } catch (error) {
     console.error('Error updating property:', error);
     throw error;
@@ -81,7 +83,11 @@ export const updateProperty = async (propertyId: string, updates: Partial<Proper
 
 export const deleteProperty = async (propertyId: string) => {
   try {
-    await deleteDoc(doc(db, PROPERTIES_COLLECTION, propertyId));
+    await databases.deleteDocument(
+      DATABASE_ID,
+      PROPERTIES_COLLECTION_ID,
+      propertyId
+    );
   } catch (error) {
     console.error('Error deleting property:', error);
     throw error;

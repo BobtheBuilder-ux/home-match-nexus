@@ -1,23 +1,17 @@
 
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy 
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { databases, DATABASE_ID, APPLICATIONS_COLLECTION_ID } from '@/lib/appwrite';
+import { ID, Query } from 'appwrite';
 import { TenantApplication } from '@/types/application';
-
-const APPLICATIONS_COLLECTION = 'applications';
 
 export const submitApplication = async (applicationData: Omit<TenantApplication, 'id'>) => {
   try {
-    const docRef = await addDoc(collection(db, APPLICATIONS_COLLECTION), applicationData);
-    return docRef.id;
+    const response = await databases.createDocument(
+      DATABASE_ID,
+      APPLICATIONS_COLLECTION_ID,
+      ID.unique(),
+      applicationData
+    );
+    return response.$id;
   } catch (error) {
     console.error('Error submitting application:', error);
     throw error;
@@ -26,18 +20,19 @@ export const submitApplication = async (applicationData: Omit<TenantApplication,
 
 export const getApplicationsByProperty = async (propertyId: string) => {
   try {
-    const q = query(
-      collection(db, APPLICATIONS_COLLECTION), 
-      where('propertyId', '==', propertyId),
-      orderBy('submittedAt', 'desc')
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      APPLICATIONS_COLLECTION_ID,
+      [
+        Query.equal('propertyId', propertyId),
+        Query.orderDesc('submittedAt')
+      ]
     );
     
-    const querySnapshot = await getDocs(q);
-    const applications: TenantApplication[] = [];
-    
-    querySnapshot.forEach((doc) => {
-      applications.push({ id: doc.id, ...doc.data() } as TenantApplication);
-    });
+    const applications: TenantApplication[] = response.documents.map(doc => ({
+      id: doc.$id,
+      ...doc
+    } as TenantApplication));
     
     return applications;
   } catch (error) {
@@ -48,18 +43,19 @@ export const getApplicationsByProperty = async (propertyId: string) => {
 
 export const getApplicationsByApplicant = async (applicantId: string) => {
   try {
-    const q = query(
-      collection(db, APPLICATIONS_COLLECTION), 
-      where('applicantId', '==', applicantId),
-      orderBy('submittedAt', 'desc')
+    const response = await databases.listDocuments(
+      DATABASE_ID,
+      APPLICATIONS_COLLECTION_ID,
+      [
+        Query.equal('applicantId', applicantId),
+        Query.orderDesc('submittedAt')
+      ]
     );
     
-    const querySnapshot = await getDocs(q);
-    const applications: TenantApplication[] = [];
-    
-    querySnapshot.forEach((doc) => {
-      applications.push({ id: doc.id, ...doc.data() } as TenantApplication);
-    });
+    const applications: TenantApplication[] = response.documents.map(doc => ({
+      id: doc.$id,
+      ...doc
+    } as TenantApplication));
     
     return applications;
   } catch (error) {
@@ -73,11 +69,15 @@ export const updateApplicationStatus = async (
   status: TenantApplication['status']
 ) => {
   try {
-    const applicationRef = doc(db, APPLICATIONS_COLLECTION, applicationId);
-    await updateDoc(applicationRef, { 
-      status, 
-      reviewedAt: new Date().toISOString() 
-    });
+    await databases.updateDocument(
+      DATABASE_ID,
+      APPLICATIONS_COLLECTION_ID,
+      applicationId,
+      { 
+        status, 
+        reviewedAt: new Date().toISOString() 
+      }
+    );
   } catch (error) {
     console.error('Error updating application status:', error);
     throw error;
