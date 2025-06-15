@@ -46,7 +46,7 @@ export const useAdminDashboardData = () => {
     totalProperties: properties.length,
     totalTenants: users.filter(u => u.role === 'customer').length,
     totalAgents: users.filter(u => u.role === 'agent').length,
-    pendingAgents: users.filter(u => u.role === 'agent' && !u.isApproved).length,
+    pendingAgents: users.filter(u => u.role === 'agent' && !u.is_approved).length,
     activeMaintenanceTickets: 8,
     pendingApplications: 12,
     monthlyRevenue: properties.reduce((sum, p) => sum + (p.price || 0), 0),

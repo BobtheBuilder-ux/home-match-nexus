@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: data.id,
           email: data.email,
           display_name: data.display_name || 'User',
-          role: data.role,
+          role: data.role as 'customer' | 'agent' | 'admin',
           photo_url: data.photo_url,
           is_approved: data.is_approved
         });

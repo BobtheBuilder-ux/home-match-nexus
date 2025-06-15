@@ -26,7 +26,7 @@ export const useAdminDashboardHandlers = ({
   toast
 }: UseAdminDashboardHandlersProps) => {
   
-  const handlePropertyStatusChange = async (propertyId: string, status: 'active' | 'draft' | 'rented') => {
+  const handlePropertyStatusChange = async (propertyId: string, status: 'available' | 'pending' | 'rented') => {
     try {
       await updateProperty(propertyId, { status });
       setProperties(properties.map(p => 
@@ -70,7 +70,7 @@ export const useAdminDashboardHandlers = ({
     try {
       await updateUserApprovalStatus(userId, true);
       setUsers(users.map(u => 
-        u.userId === userId ? { ...u, isApproved: true } : u
+        u.id === userId ? { ...u, is_approved: true } : u
       ));
       toast({
         title: "Success",
@@ -90,7 +90,7 @@ export const useAdminDashboardHandlers = ({
     try {
       await updateUserApprovalStatus(userId, false);
       setUsers(users.map(u => 
-        u.userId === userId ? { ...u, isApproved: false } : u
+        u.id === userId ? { ...u, is_approved: false } : u
       ));
       toast({
         title: "Success",
@@ -112,13 +112,13 @@ export const useAdminDashboardHandlers = ({
       if (!request) return;
 
       await updateFeaturedRequestStatus(requestId, 'approved');
-      await updateProperty(request.propertyId, { isFeatured: true });
+      await updateProperty(request.property_id, { is_featured: true });
       
       setFeaturedRequests(featuredRequests.map(r => 
         r.id === requestId ? { ...r, status: 'approved' } : r
       ));
       setProperties(properties.map(p => 
-        p.id === request.propertyId ? { ...p, isFeatured: true } : p
+        p.id === request.property_id ? { ...p, is_featured: true } : p
       ));
       
       toast({
