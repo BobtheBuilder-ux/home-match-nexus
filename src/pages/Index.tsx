@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
@@ -6,6 +5,7 @@ import FeaturedProperties from "@/components/FeaturedProperties";
 import HowItWorks from "@/components/HowItWorks";
 import Footer from "@/components/Footer";
 import SeedButton from "@/components/SeedButton";
+import FeaturedShortlets from "@/components/FeaturedShortlets";
 import { getProperties } from "@/services/propertyService";
 import { Property } from "@/types/property";
 
@@ -41,6 +41,8 @@ const Index = () => {
       
       <HeroSection />
       <FeaturedProperties properties={featuredProperties} loading={loading} />
+      {/* Add featured shortlet apartments section below regular featured */}
+      <FeaturedShortlets />
       <HowItWorks />
       <Footer />
     </div>

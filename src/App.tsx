@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -23,6 +22,7 @@ import HelpCenter from "./pages/HelpCenter";
 import SafetyTips from "./pages/SafetyTips";
 import ContactUs from "./pages/ContactUs";
 import ReportIssue from "./pages/ReportIssue";
+import ShortletListings from "./pages/ShortletListings";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +37,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/find-rentals" element={<FindRentals />} />
             <Route path="/list-property" element={<ListProperty />} />
+            <Route path="/shortlets" element={<ShortletListings />} />
             <Route path="/for-agents" element={<ForAgents />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
