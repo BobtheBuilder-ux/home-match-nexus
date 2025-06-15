@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,7 @@ import PropertyDetail from "./pages/PropertyDetail";
 import NotFound from "./pages/NotFound";
 import ApplyProperty from "./pages/ApplyProperty";
 import MyApplications from "./pages/MyApplications";
+import Maintenance from "./pages/Maintenance";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,7 @@ const App = () => (
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/apply/:id" element={<ApplyProperty />} />
             <Route path="/my-applications" element={<MyApplications />} />
+            <Route path="/maintenance" element={<Maintenance />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
