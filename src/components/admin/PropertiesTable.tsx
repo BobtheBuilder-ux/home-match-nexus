@@ -16,7 +16,7 @@ import { Property } from '@/types/property';
 
 interface PropertiesTableProps {
   properties: Property[];
-  handlePropertyStatusChange: (propertyId: string, status: 'active' | 'draft' | 'rented') => void;
+  handlePropertyStatusChange: (propertyId: string, status: 'available' | 'rented' | 'pending') => void;
   handleDeleteProperty: (propertyId: string) => void;
 }
 
@@ -32,7 +32,7 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
           <TableHeader>
             <TableRow>
               <TableHead>Title</TableHead>
-              <TableHead>Address</TableHead>
+              <TableHead>Location</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Featured</TableHead>
@@ -43,21 +43,21 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
             {properties.map((property) => (
               <TableRow key={property.id}>
                 <TableCell className="font-medium">{property.title}</TableCell>
-                <TableCell>{property.address}, {property.city}</TableCell>
-                <TableCell>${property.price}/month</TableCell>
+                <TableCell>{property.location}</TableCell>
+                <TableCell>₦{property.price.toLocaleString()}/year</TableCell>
                 <TableCell>
                   <select
-                    value={property.status || 'active'}
-                    onChange={(e) => handlePropertyStatusChange(property.id, e.target.value as 'active' | 'draft' | 'rented')}
+                    value={property.status || 'available'}
+                    onChange={(e) => handlePropertyStatusChange(property.id, e.target.value as 'available' | 'rented' | 'pending')}
                     className="px-2 py-1 border rounded text-sm"
                   >
-                    <option value="active">Active</option>
-                    <option value="draft">Draft</option>
+                    <option value="available">Available</option>
                     <option value="rented">Rented</option>
+                    <option value="pending">Pending</option>
                   </select>
                 </TableCell>
                 <TableCell>
-                  {property.isFeatured ? (
+                  {property.is_featured ? (
                     <Badge variant="default" className="bg-yellow-100 text-yellow-800">Featured</Badge>
                   ) : (
                     <Badge variant="outline">Not Featured</Badge>

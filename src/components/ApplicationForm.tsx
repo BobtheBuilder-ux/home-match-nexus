@@ -73,13 +73,19 @@ const ApplicationForm = ({ propertyId, propertyTitle }: ApplicationFormProps) =>
     
     try {
       const applicationData = {
-        ...formData,
-        monthlyIncome: parseFloat(formData.monthlyIncome) || 0,
-        propertyId,
-        applicantId: user.uid,
-        status: 'submitted' as const,
-        submittedAt: new Date().toISOString(),
-        references: references.filter(ref => ref.name.trim() !== "")
+        property_id: propertyId,
+        user_id: user.id,
+        status: 'pending' as const,
+        application_date: new Date().toISOString(),
+        move_in_date: formData.moveInDate,
+        monthly_income: parseFloat(formData.monthlyIncome) || null,
+        employment_status: `${formData.jobTitle} at ${formData.employerName}`,
+        emergency_contacts: {
+          references: references.filter(ref => ref.name.trim() !== ""),
+          ...formData
+        },
+        documents: null,
+        notes: formData.additionalComments
       };
 
       await submitApplication(applicationData);

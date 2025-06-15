@@ -33,7 +33,7 @@ const AdminPropertyManager = () => {
     }
   };
 
-  const handleStatusChange = async (propertyId: string, newStatus: 'active' | 'draft' | 'rented') => {
+  const handleStatusChange = async (propertyId: string, newStatus: 'available' | 'rented' | 'pending') => {
     try {
       await updateProperty(propertyId, { status: newStatus });
       setProperties(properties.map(p => 
@@ -75,9 +75,9 @@ const AdminPropertyManager = () => {
 
   const handleFeatureToggle = async (propertyId: string, isFeatured: boolean) => {
     try {
-      await updateProperty(propertyId, { isFeatured: !isFeatured });
+      await updateProperty(propertyId, { is_featured: !isFeatured });
       setProperties(properties.map(p => 
-        p.id === propertyId ? { ...p, isFeatured: !isFeatured } : p
+        p.id === propertyId ? { ...p, is_featured: !isFeatured } : p
       ));
       toast({
         title: "Featured Status Updated",
@@ -111,13 +111,13 @@ const AdminPropertyManager = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <CardTitle className="text-lg">{property.title}</CardTitle>
-                  <p className="text-sm text-gray-600">{property.address}, {property.city}</p>
+                  <p className="text-sm text-gray-600">{property.location}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Badge variant={property.status === 'active' ? 'default' : 'secondary'}>
+                  <Badge variant={property.status === 'available' ? 'default' : 'secondary'}>
                     {property.status}
                   </Badge>
-                  {property.isFeatured && (
+                  {property.is_featured && (
                     <Badge variant="outline">Featured</Badge>
                   )}
                 </div>
@@ -126,8 +126,8 @@ const AdminPropertyManager = () => {
             <CardContent>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-gray-600">
-                  <p>${property.price.toLocaleString()}/month • {property.bedrooms} bed • {property.bathrooms} bath</p>
-                  <p>Listed: {new Date(property.dateAdded).toLocaleDateString()}</p>
+                  <p>₦{property.price.toLocaleString()}/year • {property.bedrooms} bed • {property.bathrooms} bath</p>
+                  <p>Listed: {new Date(property.created_at).toLocaleDateString()}</p>
                 </div>
                 
                 <div className="flex gap-2">
@@ -142,19 +142,19 @@ const AdminPropertyManager = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleFeatureToggle(property.id, property.isFeatured || false)}
+                    onClick={() => handleFeatureToggle(property.id, property.is_featured || false)}
                   >
-                    {property.isFeatured ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                    {property.is_featured ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                   </Button>
 
                   <select
                     value={property.status}
-                    onChange={(e) => handleStatusChange(property.id, e.target.value as 'active' | 'draft' | 'rented')}
+                    onChange={(e) => handleStatusChange(property.id, e.target.value as 'available' | 'rented' | 'pending')}
                     className="px-2 py-1 border rounded text-sm"
                   >
-                    <option value="active">Active</option>
-                    <option value="draft">Draft</option>
+                    <option value="available">Available</option>
                     <option value="rented">Rented</option>
+                    <option value="pending">Pending</option>
                   </select>
 
                   <Button

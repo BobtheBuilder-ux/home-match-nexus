@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, userProfile, logout } = useAuth();
+  const { user, userProfile, signOut } = useAuth();
   
   const navigate = useNavigate();
 
@@ -22,7 +22,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await signOut();
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -33,7 +33,7 @@ const Header = () => {
   const canAccessAdmin = userProfile?.role === 'admin' && userProfile?.email === 'admin@bobbieberry.com';
   
   // Check if user is an approved agent
-  const isApprovedAgent = userProfile?.role === 'agent' && userProfile?.isApproved;
+  const isApprovedAgent = userProfile?.role === 'agent' && userProfile?.is_approved;
   
   // Check if user is any agent (approved or not)
   const isAgent = userProfile?.role === 'agent';
@@ -99,16 +99,16 @@ const Header = () => {
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
                   <img 
-                    src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=6366f1&color=fff`} 
-                    alt={user.displayName || 'User'} 
+                    src={user.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${user.user_metadata?.display_name || user.email}&background=6366f1&color=fff`} 
+                    alt={user.user_metadata?.display_name || 'User'} 
                     className="w-8 h-8 rounded-full"
                   />
                   <div className="hidden md:block">
-                    <span className="text-sm text-neutral-700">{user.displayName}</span>
+                    <span className="text-sm text-neutral-700">{user.user_metadata?.display_name || user.email}</span>
                     {userProfile && (
                       <div className="text-xs text-neutral-500 capitalize">
                         {userProfile.role}
-                        {userProfile.role === 'agent' && !userProfile.isApproved && ' (Pending)'}
+                        {userProfile.role === 'agent' && !userProfile.is_approved && ' (Pending)'}
                       </div>
                     )}
                   </div>
