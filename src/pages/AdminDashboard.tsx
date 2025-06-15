@@ -1,8 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus } from 'lucide-react';
 import { getProperties, updateProperty, deleteProperty } from '@/services/propertyService';
 import { getUserProfiles, updateUserApprovalStatus } from '@/services/adminService';
 import { getFeaturedRequests, updateFeaturedRequestStatus } from '@/services/featuredPropertyService';
