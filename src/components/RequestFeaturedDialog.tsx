@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,8 +15,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { 
   initializePaystackPayment, 
   createPaymentRecord, 
-  updatePaymentStatus,
-  generatePaymentReference
+  generatePaymentReference,
+  verifyPaymentWithWebhook
 } from "@/services/paymentService";
 
 interface RequestFeaturedDialogProps {
@@ -66,7 +65,7 @@ const RequestFeaturedDialog = ({
       const paymentId = await createPaymentRecord(paymentRecord);
 
       // Initialize Paystack payment
-      const response = await initializePaystackPayment(
+      await initializePaystackPayment(
         user.email || '',
         FEATURED_FEE,
         reference,
@@ -78,17 +77,20 @@ const RequestFeaturedDialog = ({
         }
       );
 
-      console.log('Payment response:', response);
-
-      // Update payment status to success
-      await updatePaymentStatus(paymentId, 'success', reference);
-
-      // Create featured request after successful payment
-      await requestFeaturedProperty(propertyId, user.uid, propertyTitle);
-
-      toast.success("Payment successful! Your featured request has been submitted.");
-      onOpenChange(false);
-      setPaymentStep('request');
+      console.log('Payment initiated, waiting for webhook verification...');
+      
+      // Wait for webhook verification
+      const isVerified = await verifyPaymentWithWebhook(reference);
+      
+      if (isVerified) {
+        // Create featured request after successful webhook verification
+        await requestFeaturedProperty(propertyId, user.uid, propertyTitle, paymentId);
+        toast.success("Payment verified! Your featured request has been submitted.");
+        onOpenChange(false);
+        setPaymentStep('request');
+      } else {
+        toast.error("Payment verification failed or timed out. Please contact support if payment was deducted.");
+      }
 
     } catch (error) {
       console.error('Payment failed:', error);
@@ -152,15 +154,26 @@ const RequestFeaturedDialog = ({
                   Featured listing fee: <span className="font-bold">₦{FEATURED_FEE.toLocaleString()}</span>
                 </p>
                 <p className="text-xs text-yellow-600 mt-1">
-                  Secure payment via Paystack
+                  Secure payment via Paystack • Webhook verified
                 </p>
               </div>
+            </div>
+          )}
+          
+          {loading && (
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <p className="text-sm text-blue-800">
+                {paymentStep === 'payment' ? 'Verifying payment...' : 'Processing payment...'}
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                Please wait while we confirm your payment with our secure webhook system.
+              </p>
             </div>
           )}
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
           {canRequest && (
@@ -169,7 +182,7 @@ const RequestFeaturedDialog = ({
               disabled={loading}
               className="bg-green-600 hover:bg-green-700"
             >
-              {loading ? "Processing..." : `Pay ₦${FEATURED_FEE.toLocaleString()} & Request Featured`}
+              {loading ? "Verifying Payment..." : `Pay ₦${FEATURED_FEE.toLocaleString()} & Request Featured`}
             </Button>
           )}
         </DialogFooter>
