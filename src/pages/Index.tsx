@@ -40,16 +40,23 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Header />
       
-      {/* Seed Button for Admin Users */}
+      <HeroSection />
+      
+      {/* Seed Button for Admin Users - Prominent placement */}
       {canAccessAdmin && (
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-center">
-            <SeedButton />
+        <div className="bg-yellow-50 border-b border-yellow-200 py-8">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col items-center space-y-4">
+              <h3 className="text-xl font-semibold text-yellow-800">Admin Development Tools</h3>
+              <p className="text-yellow-700 text-center">Use these tools to seed the database with sample data for testing</p>
+              <div className="transform scale-125">
+                <SeedButton />
+              </div>
+            </div>
           </div>
         </div>
       )}
       
-      <HeroSection />
       <FeaturedProperties properties={featuredProperties} loading={loading} />
       <FeaturedShortlets />
       <HowItWorks />
