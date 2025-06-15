@@ -22,7 +22,7 @@ const PropertySidebar = ({ property }: PropertySidebarProps) => {
     <Card className="sticky top-4">
       <CardContent className="p-6">
         <div className="text-3xl font-bold text-primary-600 mb-4">
-          ${property.price.toLocaleString()}/month
+          ₦{property.price.toLocaleString()}/month
         </div>
         
         <div className="space-y-3 mb-6">
