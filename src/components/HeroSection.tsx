@@ -103,7 +103,7 @@ const HeroSection = () => {
                   className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105"
                 >
                   <Search className="w-4 h-4 mr-2" />
-                  Search
+                  Start Your Search
                 </Button>
               </div>
             </div>

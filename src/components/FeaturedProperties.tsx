@@ -1,6 +1,8 @@
 
 import PropertyCard from "./PropertyCard";
 import { Property } from "@/types/property";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface FeaturedPropertiesProps {
   properties: Property[];
@@ -57,9 +59,11 @@ const FeaturedProperties = ({ properties, loading }: FeaturedPropertiesProps) =>
         )}
 
         <div className="text-center mt-10">
-          <button className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
-            View All Properties
-          </button>
+          <Link to="/find-rentals">
+            <Button size="lg" className="bg-primary-600 hover:bg-primary-700 text-white">
+              View All Properties
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
