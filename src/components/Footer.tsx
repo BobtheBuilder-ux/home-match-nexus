@@ -1,5 +1,6 @@
 
 import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -29,9 +30,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">Find Rentals</a></li>
-              <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">List Property</a></li>
-              <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">For Agents</a></li>
+              <li><Link to="/find-rentals" className="text-neutral-300 hover:text-white transition-colors">Find Rentals</Link></li>
+              <li><Link to="/list-property" className="text-neutral-300 hover:text-white transition-colors">List Property</Link></li>
+              <li><Link to="/for-agents" className="text-neutral-300 hover:text-white transition-colors">For Agents</Link></li>
               <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">Pricing</a></li>
             </ul>
           </div>
@@ -40,10 +41,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Support</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">Help Center</a></li>
-              <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">Safety Tips</a></li>
-              <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">Contact Us</a></li>
-              <li><a href="#" className="text-neutral-300 hover:text-white transition-colors">Report Issue</a></li>
+              <li><Link to="/help-center" className="text-neutral-300 hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link to="/safety-tips" className="text-neutral-300 hover:text-white transition-colors">Safety Tips</Link></li>
+              <li><Link to="/contact-us" className="text-neutral-300 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link to="/report-issue" className="text-neutral-300 hover:text-white transition-colors">Report Issue</Link></li>
             </ul>
           </div>
 

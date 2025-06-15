@@ -3,6 +3,7 @@ import { useState } from "react";
 import { MapPin, Bed, Bath, Maximize, Heart, Share2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
 interface PropertyCardProps {
   property: {
@@ -160,9 +161,11 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button className="flex-1 bg-primary-600 hover:bg-primary-700 text-white">
-            View Details
-          </Button>
+          <Link to={`/property/${property.id}`} className="flex-1">
+            <Button className="w-full bg-primary-600 hover:bg-primary-700 text-white">
+              View Details
+            </Button>
+          </Link>
           <Button variant="outline" className="border-primary-600 text-primary-600 hover:bg-primary-50">
             <Calendar className="w-4 h-4 mr-1" />
             Tour
