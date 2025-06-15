@@ -32,12 +32,18 @@ const FindRentals = () => {
     const fetchProperties = async () => {
       setLoading(true);
       try {
+        console.log('🔍 Fetching properties from Supabase...');
         const allProperties = await getProperties();
+        console.log('📊 Raw properties fetched:', allProperties.length);
+        console.log('📋 Sample property:', allProperties[0]);
+        
         // Filter only available properties
         const availableProperties = allProperties.filter(p => p.status === 'available');
+        console.log('✅ Available properties:', availableProperties.length);
+        
         setProperties(availableProperties);
       } catch (error) {
-        console.error('Error fetching properties:', error);
+        console.error('❌ Error fetching properties:', error);
       } finally {
         setLoading(false);
       }
@@ -56,6 +62,9 @@ const FindRentals = () => {
   }, [location.search]);
 
   const filteredProperties = usePropertyFilters(properties, filters);
+  
+  console.log('🎯 Final filtered properties count:', filteredProperties.length);
+  console.log('🔧 Current filters:', filters);
 
   const handleSearch = (location: string) => {
     setSearchLocation(location);

@@ -52,11 +52,15 @@ export const addProperty = async (propertyData: Omit<Property, 'id' | 'created_a
 
 export const getProperties = async (filters?: { city?: string; maxPrice?: number; minBedrooms?: number }) => {
   try {
+    console.log('🔌 Connecting to Supabase to fetch properties...');
+    
     let query = supabase
       .from('properties')
       .select('*')
-      .eq('status', 'available')
       .order('created_at', { ascending: false });
+
+    // Remove the status filter to get all properties initially
+    console.log('📊 Query filters:', filters);
 
     if (filters?.city) {
       query = query.ilike('location', `%${filters.city}%`);
@@ -72,10 +76,17 @@ export const getProperties = async (filters?: { city?: string; maxPrice?: number
 
     const { data, error } = await query;
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Supabase query error:', error);
+      throw error;
+    }
+    
+    console.log('✅ Successfully fetched properties:', data?.length || 0);
+    console.log('📋 First property sample:', data?.[0]);
+    
     return data as Property[];
   } catch (error) {
-    console.error('Error getting properties:', error);
+    console.error('❌ Error in getProperties:', error);
     throw error;
   }
 };
