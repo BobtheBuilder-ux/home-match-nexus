@@ -1,9 +1,5 @@
-
 import { messaging, databases, DATABASE_ID, MESSAGES_COLLECTION_ID, CONVERSATIONS_COLLECTION_ID } from '@/lib/appwrite';
 import { ID, Query } from 'appwrite';
-
-const MESSAGES_COLLECTION_ID = 'messages';
-const CONVERSATIONS_COLLECTION_ID = 'conversations';
 
 export interface Message {
   id?: string;
