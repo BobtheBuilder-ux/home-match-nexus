@@ -6,12 +6,16 @@ import Header from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { createUserProfile } from "@/services/userService";
+import { signInAnonymously } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const AdminLogin = () => {
   const { user, userProfile } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user && userProfile) {
@@ -26,15 +30,36 @@ const AdminLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     if (email !== "admin@mecwebcraft.com") {
       setError("Only admin@mecwebcraft.com is authorized to access this portal");
+      setLoading(false);
       return;
     }
 
-    // For now, we'll just simulate login success
-    // In a real app, you'd implement proper authentication here
-    console.log("Admin login attempted with:", email);
+    try {
+      // Sign in anonymously first to get a user object
+      const userCredential = await signInAnonymously(auth);
+      const user = userCredential.user;
+
+      // Create admin profile
+      await createUserProfile({
+        userId: user.uid,
+        email: email,
+        displayName: "Admin",
+        role: 'admin',
+        createdAt: new Date().toISOString(),
+        isApproved: true
+      });
+
+      // Navigation will be handled by the useEffect hook
+    } catch (error) {
+      console.error("Admin login failed:", error);
+      setError("Login failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,6 +92,7 @@ const AdminLogin = () => {
                   placeholder="Enter your email address"
                   required
                   className="mt-1"
+                  disabled={loading}
                 />
               </div>
 
@@ -78,8 +104,9 @@ const AdminLogin = () => {
                 type="submit"
                 size="lg" 
                 className="w-full"
+                disabled={loading}
               >
-                Sign In
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
