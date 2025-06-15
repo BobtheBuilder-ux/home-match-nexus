@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface TenantApplication {
@@ -45,6 +44,22 @@ export const getApplicationsByProperty = async (propertyId: string) => {
     return data as TenantApplication[];
   } catch (error) {
     console.error('Error getting applications:', error);
+    throw error;
+  }
+};
+
+export const getUserApplications = async (userId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('applications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('application_date', { ascending: false });
+
+    if (error) throw error;
+    return data as TenantApplication[];
+  } catch (error) {
+    console.error('Error getting user applications:', error);
     throw error;
   }
 };

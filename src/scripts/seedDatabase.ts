@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { generateProperties } from './utils/propertyGenerator';
 
@@ -50,12 +49,12 @@ export const clearDatabase = async () => {
     
     const tables = ['payments', 'featured_requests', 'applications', 'properties'];
 
-    for (const table of tables) {
-      const { error } = await supabase.from(table).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    for (const tableName of tables) {
+      const { error } = await supabase.from(tableName).delete().neq('id', '00000000-0000-0000-0000-000000000000');
       if (error) {
-        console.error(`Error clearing ${table}:`, error);
+        console.error(`Error clearing ${tableName}:`, error);
       } else {
-        console.log(`Cleared ${table} table`);
+        console.log(`Cleared ${tableName} table`);
       }
     }
     

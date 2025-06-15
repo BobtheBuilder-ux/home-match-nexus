@@ -32,7 +32,7 @@ const FindRentals = () => {
       setLoading(true);
       try {
         const allProperties = await getProperties();
-        // Filter only available properties, not "active"
+        // Filter only available properties
         const availableProperties = allProperties.filter(p => p.status === 'available');
         setProperties(availableProperties);
       } catch (error) {
@@ -71,6 +71,20 @@ const FindRentals = () => {
     setFilters(newFilters);
   };
 
+  const handleClearFilters = () => {
+    setFilters({
+      location: "",
+      type: "any",
+      bedrooms: "any",
+      priceMin: 0,
+      priceMax: 10000000,
+      amenities: [],
+      sortBy: "newest"
+    });
+    setSearchLocation("");
+    navigate('/find-rentals');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
@@ -101,7 +115,8 @@ const FindRentals = () => {
           <div className="lg:w-1/4">
             <SearchFilters 
               filters={filters}
-              onFilterChange={handleFilterChange}
+              onFiltersChange={handleFilterChange}
+              onClearFilters={handleClearFilters}
             />
           </div>
           

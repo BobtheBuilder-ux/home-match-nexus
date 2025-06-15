@@ -1,4 +1,3 @@
-
 import HeroSection from "@/components/HeroSection";
 import FeaturedProperties from "@/components/FeaturedProperties";
 import FeaturedShortlets from "@/components/FeaturedShortlets";
@@ -11,6 +10,7 @@ import { getFeaturedProperties } from "@/services/propertyService";
 
 const Index = () => {
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFeaturedProperties = async () => {
@@ -21,6 +21,8 @@ const Index = () => {
         setFeaturedProperties(featured);
       } catch (error) {
         console.error('Error fetching featured properties:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -31,7 +33,7 @@ const Index = () => {
     <div className="min-h-screen bg-white">
       <Header />
       <HeroSection />
-      <FeaturedProperties properties={featuredProperties} />
+      <FeaturedProperties properties={featuredProperties} loading={loading} />
       <FeaturedShortlets />
       <HowItWorks />
       <Footer />

@@ -48,8 +48,6 @@ const AdminLogin = () => {
         email: email,
         display_name: "Admin",
         role: 'admin',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
         is_approved: true
       });
 
