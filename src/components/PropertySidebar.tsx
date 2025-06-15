@@ -18,11 +18,17 @@ const PropertySidebar = ({ property }: PropertySidebarProps) => {
     navigate(`/apply/${property.id}`);
   };
 
+  // Pricing label
+  let pricingUnit = "per year";
+  if (property.propertyType === "shortlet") {
+    pricingUnit = "per night";
+  }
+
   return (
     <Card className="sticky top-4">
       <CardContent className="p-6">
         <div className="text-3xl font-bold text-primary-600 mb-4">
-          ₦{property.price.toLocaleString()}/month
+          ₦{property.price.toLocaleString()}/{pricingUnit}
         </div>
         
         <div className="space-y-3 mb-6">

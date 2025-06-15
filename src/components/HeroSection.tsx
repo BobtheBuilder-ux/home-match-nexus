@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -75,6 +74,7 @@ const HeroSection = () => {
                     <SelectItem value="house">House</SelectItem>
                     <SelectItem value="studio">Studio</SelectItem>
                     <SelectItem value="shared">Shared</SelectItem>
+                    <SelectItem value="shortlet">Shortlet</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -107,6 +107,22 @@ const HeroSection = () => {
                 </Button>
               </div>
             </div>
+          </div>
+
+          {/* List Property and List Shortlet buttons */}
+          <div className="flex flex-wrap gap-4 mt-6 justify-center">
+            <Button
+              onClick={() => navigate("/list-property")}
+              className="bg-primary-500 hover:bg-primary-600 text-white"
+            >
+              List Your Property
+            </Button>
+            <Button
+              onClick={() => navigate("/list-property?type=shortlet")}
+              className="bg-secondary-500 hover:bg-secondary-600 text-white"
+            >
+              List Shortlet Apartment
+            </Button>
           </div>
 
           {/* Quick Stats */}

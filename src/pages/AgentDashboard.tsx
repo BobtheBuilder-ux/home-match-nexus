@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Trash2, Plus, Home, Edit, Eye, Star } from "lucide-react";
 import Header from "@/components/Header";
@@ -141,19 +140,26 @@ const AgentDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-poppins font-bold text-neutral-900">Agent Dashboard</h1>
             <p className="text-neutral-600 mt-2">Manage your property listings</p>
           </div>
-          <Link to="/list-property">
-            <Button className="bg-primary-600 hover:bg-primary-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Property
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            <Link to="/list-property">
+              <Button className="bg-primary-600 hover:bg-primary-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Property
+              </Button>
+            </Link>
+            <Link to="/list-property?type=shortlet">
+              <Button className="bg-secondary-600 hover:bg-secondary-700">
+                <Plus className="w-4 h-4 mr-2" />
+                List Shortlet Apartment
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Stats Cards */}

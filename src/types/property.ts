@@ -1,4 +1,3 @@
-
 export interface Property {
   id: string;
   title: string;
@@ -10,7 +9,7 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   area: number;
-  propertyType: 'apartment' | 'house' | 'studio' | 'shared';
+  propertyType: 'apartment' | 'house' | 'studio' | 'shared' | 'shortlet';
   status: 'active' | 'draft' | 'rented';
   images: string[];
   videos?: string[];

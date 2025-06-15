@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MapPin, Bed, Bath, Maximize, Heart, Share2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
   // Create location string from address components
   const location = `${property.city}, ${property.state}`;
+
+  // Define pricing label based on property type
+  let pricingLabel = "per year";
+  if (property.propertyType === "shortlet") {
+    pricingLabel = "per night";
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-neutral-100">
@@ -115,8 +120,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             {property.title}
           </h3>
           <div className="text-right ml-3">
-            <div className="text-2xl font-bold text-primary-600">₦{property.price.toLocaleString()}</div>
-            <div className="text-sm text-neutral-500">per month</div>
+            <div className="text-2xl font-bold text-primary-600">
+              ₦{property.price.toLocaleString()}
+            </div>
+            <div className="text-sm text-neutral-500">{pricingLabel}</div>
           </div>
         </div>
 
