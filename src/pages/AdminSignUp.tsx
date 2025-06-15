@@ -34,14 +34,6 @@ const AdminSignUp = () => {
     setError("");
     setLoading(true);
 
-    // Check if the email is authorized for admin access
-    const authorizedEmails = ['admin@mecwebcraft.com', 'admin@bobbieberry.com'];
-    if (!authorizedEmails.includes(email)) {
-      setError("Only authorized admin emails can create admin accounts");
-      setLoading(false);
-      return;
-    }
-
     // Validate password confirmation
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -174,14 +166,11 @@ const AdminSignUp = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your authorized admin email"
+                  placeholder="Enter your admin email"
                   required
                   className="mt-1"
                   disabled={loading}
                 />
-                <p className="text-xs text-neutral-500 mt-1">
-                  Only admin@mecwebcraft.com and admin@bobbieberry.com are authorized
-                </p>
               </div>
 
               <div>

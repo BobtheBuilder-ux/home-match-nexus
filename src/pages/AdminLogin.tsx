@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,14 +31,6 @@ const AdminLogin = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-
-    // Check if the email is authorized for admin access
-    const authorizedEmails = ['admin@mecwebcraft.com', 'admin@bobbieberry.com'];
-    if (!authorizedEmails.includes(email)) {
-      setError("Only authorized admin emails can access this portal");
-      setLoading(false);
-      return;
-    }
 
     try {
       // Sign in with email and password
