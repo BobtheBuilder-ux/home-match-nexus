@@ -23,6 +23,7 @@ import SafetyTips from "./pages/SafetyTips";
 import ContactUs from "./pages/ContactUs";
 import ReportIssue from "./pages/ReportIssue";
 import ShortletListings from "./pages/ShortletListings";
+import RequireAuth from "@/components/RequireAuth";
 
 const queryClient = new QueryClient();
 
@@ -34,23 +35,130 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/find-rentals" element={<FindRentals />} />
-            <Route path="/list-property" element={<ListProperty />} />
-            <Route path="/shortlets" element={<ShortletListings />} />
-            <Route path="/for-agents" element={<ForAgents />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/agent-dashboard" element={<AgentDashboard />} />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/property/:id" element={<PropertyDetail />} />
-            <Route path="/apply/:id" element={<ApplyProperty />} />
-            <Route path="/my-applications" element={<MyApplications />} />
-            <Route path="/maintenance" element={<Maintenance />} />
-            <Route path="/help-center" element={<HelpCenter />} />
-            <Route path="/safety-tips" element={<SafetyTips />} />
-            <Route path="/contact-us" element={<ContactUs />} />
-            <Route path="/report-issue" element={<ReportIssue />} />
+
+            {/* All routes BELOW this require authentication */}
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <Index />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/find-rentals"
+              element={
+                <RequireAuth>
+                  <FindRentals />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/list-property"
+              element={
+                <RequireAuth>
+                  <ListProperty />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/shortlets"
+              element={
+                <RequireAuth>
+                  <ShortletListings />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/for-agents"
+              element={
+                <RequireAuth>
+                  <ForAgents />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/agent-dashboard"
+              element={
+                <RequireAuth>
+                  <AgentDashboard />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/admin-dashboard"
+              element={
+                <RequireAuth>
+                  <AdminDashboard />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/property/:id"
+              element={
+                <RequireAuth>
+                  <PropertyDetail />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/apply/:id"
+              element={
+                <RequireAuth>
+                  <ApplyProperty />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/my-applications"
+              element={
+                <RequireAuth>
+                  <MyApplications />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/maintenance"
+              element={
+                <RequireAuth>
+                  <Maintenance />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/help-center"
+              element={
+                <RequireAuth>
+                  <HelpCenter />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/safety-tips"
+              element={
+                <RequireAuth>
+                  <SafetyTips />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/contact-us"
+              element={
+                <RequireAuth>
+                  <ContactUs />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/report-issue"
+              element={
+                <RequireAuth>
+                  <ReportIssue />
+                </RequireAuth>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
