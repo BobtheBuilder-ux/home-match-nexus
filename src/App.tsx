@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import ForAgents from "./pages/ForAgents";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import AgentDashboard from "./pages/AgentDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 import PropertyDetail from "./pages/PropertyDetail";
 import NotFound from "./pages/NotFound";
 import ApplyProperty from "./pages/ApplyProperty";
@@ -35,6 +35,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/agent-dashboard" element={<AgentDashboard />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/property/:id" element={<PropertyDetail />} />
             <Route path="/apply/:id" element={<ApplyProperty />} />
             <Route path="/my-applications" element={<MyApplications />} />
