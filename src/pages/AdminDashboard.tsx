@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -210,6 +209,11 @@ const AdminDashboard = () => {
       case 'low': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getAgentName = (agentId: string) => {
+    const agent = users.find(u => u.userId === agentId && u.role === 'agent');
+    return agent?.displayName || 'N/A';
   };
 
   if (loading) {
@@ -481,7 +485,7 @@ const AdminDashboard = () => {
                       {properties.filter(p => p.isFeatured).map((property) => (
                         <TableRow key={property.id}>
                           <TableCell className="font-medium">{property.title}</TableCell>
-                          <TableCell>{property.agentName || 'N/A'}</TableCell>
+                          <TableCell>{getAgentName(property.agentId)}</TableCell>
                           <TableCell>${property.price}/month</TableCell>
                           <TableCell>{new Date(property.dateAdded).toLocaleDateString()}</TableCell>
                           <TableCell>
