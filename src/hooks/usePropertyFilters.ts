@@ -29,33 +29,48 @@ export const usePropertyFilters = (properties: Property[], filters: Filters) => 
           searchTerm.includes(property.city.toLowerCase()) ||
           searchTerm.includes(property.state.toLowerCase());
         
-        console.log(`Checking location "${searchTerm}" against property: ${property.city}, ${property.state}, ${property.address}. Match: ${locationMatch}`);
-        
-        if (!locationMatch) return false;
+        if (!locationMatch) {
+          console.log(`Location filter failed for: ${property.city}, ${property.state}`);
+          return false;
+        }
       }
       
       // Property type filter
       if (filters.type && filters.type !== 'any') {
-        if (property.propertyType !== filters.type) return false;
+        if (property.propertyType !== filters.type) {
+          console.log(`Type filter failed for property: ${property.id}, expected: ${filters.type}, actual: ${property.propertyType}`);
+          return false;
+        }
       }
       
       // Bedrooms filter
       if (filters.bedrooms && filters.bedrooms !== 'any') {
         if (filters.bedrooms === 'studio') {
-          if (property.bedrooms !== 0) return false;
+          if (property.bedrooms !== 0) {
+            console.log(`Bedroom filter failed for property: ${property.id}, expected: studio (0), actual: ${property.bedrooms}`);
+            return false;
+          }
         } else if (filters.bedrooms === '4+') {
-          if (property.bedrooms < 4) return false;
+          if (property.bedrooms < 4) {
+            console.log(`Bedroom filter failed for property: ${property.id}, expected: 4+, actual: ${property.bedrooms}`);
+            return false;
+          }
         } else {
           const bedroomCount = parseInt(filters.bedrooms);
-          if (property.bedrooms !== bedroomCount) return false;
+          if (property.bedrooms !== bedroomCount) {
+            console.log(`Bedroom filter failed for property: ${property.id}, expected: ${bedroomCount}, actual: ${property.bedrooms}`);
+            return false;
+          }
         }
       }
       
       // Price filter
       if (property.price < filters.priceMin || property.price > filters.priceMax) {
+        console.log(`Price filter failed for property: ${property.id}, price: ${property.price}, range: ${filters.priceMin}-${filters.priceMax}`);
         return false;
       }
       
+      console.log(`Property ${property.id} passed all filters`);
       return true;
     });
 
