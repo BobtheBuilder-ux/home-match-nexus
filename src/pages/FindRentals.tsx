@@ -21,8 +21,8 @@ const FindRentals = () => {
     location: "",
     type: "any",
     bedrooms: "any",
-    priceMin: 500,
-    priceMax: 5000,
+    priceMin: 0,
+    priceMax: 50000,
     amenities: [] as string[],
     sortBy: "relevance"
   });
@@ -74,8 +74,8 @@ const FindRentals = () => {
       location: "",
       type: "any",
       bedrooms: "any",
-      priceMin: 500,
-      priceMax: 5000,
+      priceMin: 0,
+      priceMax: 50000,
       amenities: [],
       sortBy: "relevance"
     });
