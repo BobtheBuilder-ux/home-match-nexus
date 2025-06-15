@@ -145,7 +145,7 @@ const ForAgents = () => {
             <Button size="lg" className="bg-white text-primary-600 hover:bg-neutral-100" onClick={handleButtonClick} disabled={userProfile?.role === 'agent' && !userProfile?.isApproved}>
               {getButtonText()}
             </Button>
-            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
+            <Button variant="outline" size="lg" className="border-white text-blue-100 hover:bg-white hover:text-primary-600">
               Learn More
             </Button>
           </div>
