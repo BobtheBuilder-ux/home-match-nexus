@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import SeedButton from "@/components/SeedButton";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -91,6 +92,9 @@ const Header = () => {
                 For Agents
               </Link>
             )}
+
+            {/* Seed Button for development */}
+            {canAccessAdmin && <SeedButton />}
           </nav>
 
           {/* User Actions */}
@@ -186,6 +190,13 @@ const Header = () => {
                   <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
                     For Agents
                   </Link>
+                )}
+                
+                {/* Seed Button for mobile admin access */}
+                {canAccessAdmin && (
+                  <div className="pt-2">
+                    <SeedButton />
+                  </div>
                 )}
               </nav>
             </div>

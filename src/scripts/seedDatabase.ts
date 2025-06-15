@@ -103,17 +103,17 @@ export const clearDatabase = async () => {
   try {
     console.log('🧹 Clearing Supabase database...');
     
-    // Clear tables in order to avoid foreign key constraints
-    const tables = ['payments', 'featured_requests', 'applications', 'properties'];
+    // Define table names as literals to satisfy TypeScript
+    const tableNames = ['payments', 'featured_requests', 'applications', 'properties'] as const;
     
-    for (const table of tables) {
-      console.log(`🗑️ Clearing ${table} table...`);
-      const { error } = await supabase.from(table).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    for (const tableName of tableNames) {
+      console.log(`🗑️ Clearing ${tableName} table...`);
+      const { error } = await supabase.from(tableName).delete().neq('id', '00000000-0000-0000-0000-000000000000');
       
       if (error) {
-        console.error(`❌ Error clearing ${table}:`, error);
+        console.error(`❌ Error clearing ${tableName}:`, error);
       } else {
-        console.log(`✅ Cleared ${table} table`);
+        console.log(`✅ Cleared ${tableName} table`);
       }
     }
     
