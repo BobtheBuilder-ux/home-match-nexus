@@ -9,10 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, logout } = useAuth();
-  
-  // Mock agent check - in real app this would come from user profile in database
-  const isAgent = user?.email?.includes('agent') || false;
+  const { user, userProfile, logout } = useAuth();
   
   const navigate = useNavigate();
 
@@ -31,6 +28,12 @@ const Header = () => {
       console.error('Logout failed:', error);
     }
   };
+
+  // Check if user can access admin panel
+  const canAccessAdmin = userProfile?.role === 'admin' && userProfile?.email === 'admin@bobbieberry.com';
+  
+  // Check if user is an approved agent
+  const isApprovedAgent = userProfile?.role === 'agent' && userProfile?.isApproved;
 
   return (
     <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
@@ -62,7 +65,8 @@ const Header = () => {
             <Link to="/find-rentals" className="text-neutral-700 hover:text-primary-600 transition-colors">
               Find Rentals
             </Link>
-            {isAgent && (
+            
+            {isApprovedAgent && (
               <>
                 <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
                   List Property
@@ -72,6 +76,13 @@ const Header = () => {
                 </Link>
               </>
             )}
+            
+            {canAccessAdmin && (
+              <Link to="/admin-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                Admin
+              </Link>
+            )}
+            
             <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
               For Agents
             </Link>
@@ -87,7 +98,15 @@ const Header = () => {
                     alt={user.displayName || 'User'} 
                     className="w-8 h-8 rounded-full"
                   />
-                  <span className="hidden md:block text-sm text-neutral-700">{user.displayName}</span>
+                  <div className="hidden md:block">
+                    <span className="text-sm text-neutral-700">{user.displayName}</span>
+                    {userProfile && (
+                      <div className="text-xs text-neutral-500 capitalize">
+                        {userProfile.role}
+                        {userProfile.role === 'agent' && !userProfile.isApproved && ' (Pending)'}
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
@@ -140,7 +159,8 @@ const Header = () => {
                 <Link to="/find-rentals" className="text-neutral-700 hover:text-primary-600 transition-colors">
                   Find Rentals
                 </Link>
-                {isAgent && (
+                
+                {isApprovedAgent && (
                   <>
                     <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
                       List Property
@@ -150,6 +170,13 @@ const Header = () => {
                     </Link>
                   </>
                 )}
+                
+                {canAccessAdmin && (
+                  <Link to="/admin-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                    Admin
+                  </Link>
+                )}
+                
                 <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
                   For Agents
                 </Link>

@@ -1,10 +1,35 @@
-
 import { CheckCircle, Users, TrendingUp, Shield, Star, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const ForAgents = () => {
+  const { user, userProfile, registerAsAgent } = useAuth();
+  const navigate = useNavigate();
+
+  const handleJoinAsAgent = async () => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+
+    if (userProfile?.role === 'agent') {
+      toast.info('You are already registered as an agent. Waiting for admin approval.');
+      return;
+    }
+
+    try {
+      await registerAsAgent();
+      toast.success('Successfully registered as an agent! Please wait for admin approval.');
+    } catch (error) {
+      console.error('Failed to register as agent:', error);
+      toast.error('Failed to register as agent. Please try again.');
+    }
+  };
+
   const benefits = [
     {
       icon: Users,
@@ -37,6 +62,21 @@ const ForAgents = () => {
     "Integration with popular CRM systems"
   ];
 
+  const getButtonText = () => {
+    if (!user) return "Join as Agent";
+    if (userProfile?.role === 'agent' && !userProfile?.isApproved) return "Pending Approval";
+    if (userProfile?.role === 'agent' && userProfile?.isApproved) return "Agent Dashboard";
+    return "Join as Agent";
+  };
+
+  const handleButtonClick = () => {
+    if (userProfile?.role === 'agent' && userProfile?.isApproved) {
+      navigate('/agent-dashboard');
+    } else {
+      handleJoinAsAgent();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -52,8 +92,13 @@ const ForAgents = () => {
               Our platform is designed to help you close more deals and build lasting relationships.
             </p>
             <div className="flex gap-4 justify-center">
-              <Button size="lg" className="bg-white text-primary-600 hover:bg-neutral-100">
-                Join as Agent
+              <Button 
+                size="lg" 
+                className="bg-white text-primary-600 hover:bg-neutral-100"
+                onClick={handleButtonClick}
+                disabled={userProfile?.role === 'agent' && !userProfile?.isApproved}
+              >
+                {getButtonText()}
               </Button>
               <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
                 <Phone className="w-5 h-5 mr-2" />
@@ -124,8 +169,13 @@ const ForAgents = () => {
             Join thousands of successful agents who are growing their business with HomeMatch.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" className="bg-white text-primary-600 hover:bg-neutral-100">
-              Apply Now
+            <Button 
+              size="lg" 
+              className="bg-white text-primary-600 hover:bg-neutral-100"
+              onClick={handleButtonClick}
+              disabled={userProfile?.role === 'agent' && !userProfile?.isApproved}
+            >
+              {getButtonText()}
             </Button>
             <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
               Learn More
