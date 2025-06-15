@@ -1,26 +1,24 @@
-import { supabase } from '@/integrations/supabase/client';
+
+import { db } from '@/lib/firebase';
+import { collection, doc, addDoc, getDocs, query, where, updateDoc, getDoc } from 'firebase/firestore';
 
 export interface UserProfile {
-  id: string;
+  id?: string;
+  userId: string;
   email: string;
-  display_name: string;
+  displayName: string;
   role: 'customer' | 'agent' | 'admin';
-  photo_url?: string;
-  is_approved?: boolean;
-  created_at: string;
-  updated_at: string;
+  photoURL?: string;
+  createdAt: string;
+  isApproved?: boolean;
 }
 
-export const createUserProfile = async (userProfile: Omit<UserProfile, 'created_at' | 'updated_at'>) => {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert([userProfile])
-      .select()
-      .single();
+const USERS_COLLECTION = 'users';
 
-    if (error) throw error;
-    return data as UserProfile;
+export const createUserProfile = async (userProfile: Omit<UserProfile, 'id'>) => {
+  try {
+    const docRef = await addDoc(collection(db, USERS_COLLECTION), userProfile);
+    return { id: docRef.id, ...userProfile } as UserProfile;
   } catch (error) {
     console.error('Error creating user profile:', error);
     throw error;
@@ -29,17 +27,15 @@ export const createUserProfile = async (userProfile: Omit<UserProfile, 'created_
 
 export const getUserProfile = async (userId: string) => {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error && error.code !== 'PGRST116') {
-      throw error;
+    const q = query(collection(db, USERS_COLLECTION), where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return { id: doc.id, ...doc.data() } as UserProfile;
     }
     
-    return data as UserProfile | null;
+    return null;
   } catch (error) {
     console.error('Error getting user profile:', error);
     throw error;
@@ -48,41 +44,24 @@ export const getUserProfile = async (userId: string) => {
 
 export const updateUserRole = async (userId: string, role: 'customer' | 'agent' | 'admin') => {
   try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .update({ role })
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as UserProfile;
+    const userProfile = await getUserProfile(userId);
+    if (userProfile && userProfile.id) {
+      const userRef = doc(db, USERS_COLLECTION, userProfile.id);
+      await updateDoc(userRef, { role });
+      return { ...userProfile, role } as UserProfile;
+    }
+    throw new Error('User profile not found');
   } catch (error) {
     console.error('Error updating user role:', error);
     throw error;
   }
 };
 
-export const getAllUsers = async () => {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data as UserProfile[];
-  } catch (error) {
-    console.error('Error getting all users:', error);
-    throw error;
-  }
-};
-
 export const determineUserRole = (email: string): 'customer' | 'agent' | 'admin' => {
-  const adminEmails = ['admin@mecwebcraft.com', 'admin@bobbieberry.com'];
-  if (adminEmails.includes(email)) {
+  if (email === 'admin@bobbieberry.com') {
     return 'admin';
   }
   
+  // Default role is customer, agents will be upgraded when they join as agent
   return 'customer';
 };

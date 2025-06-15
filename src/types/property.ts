@@ -1,19 +1,22 @@
-
 export interface Property {
   id: string;
   title: string;
   description: string;
-  location: string;
+  address: string;
+  city: string;
+  state: string;
   price: number;
   bedrooms: number;
   bathrooms: number;
-  size_sqft: number;
-  property_type: 'apartment' | 'house' | 'studio' | 'shared' | 'shortlet';
-  status: 'available' | 'rented' | 'pending';
+  area: number;
+  propertyType: 'apartment' | 'house' | 'studio' | 'shared' | 'shortlet';
+  status: 'active' | 'draft' | 'rented';
   images: string[];
-  amenities: string[];
-  agent_id: string;
-  is_featured: boolean;
-  created_at: string;
-  updated_at: string;
+  videos?: string[];
+  agentId: string;
+  dateAdded: string;
+  dateUpdated: string;
+  isFeatured?: boolean;
+  featuredRequestStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  featuredRequestDate?: string;
 }

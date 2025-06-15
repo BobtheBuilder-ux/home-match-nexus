@@ -1,17 +1,20 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { db } from '@/lib/firebase';
+import { collection, doc, addDoc, getDocs, query, orderBy, updateDoc, where } from 'firebase/firestore';
 
 export interface FeaturedRequest {
   id?: string;
-  property_id: string;
-  agent_id: string;
-  property_title: string;
-  requested_at: string;
+  propertyId: string;
+  agentId: string;
+  propertyTitle: string;
+  requestDate: string;
   status: 'pending' | 'approved' | 'rejected';
-  reviewed_at?: string;
-  reviewed_by?: string;
-  payment_id?: string;
+  adminNotes?: string;
+  paymentId?: string;
+  paymentStatus?: 'pending' | 'success' | 'failed';
 }
+
+const FEATURED_REQUESTS_COLLECTION = 'featuredRequests';
 
 export const requestFeaturedProperty = async (
   propertyId: string, 
@@ -20,22 +23,20 @@ export const requestFeaturedProperty = async (
   paymentId?: string
 ) => {
   try {
-    const requestData = {
-      property_id: propertyId,
-      agent_id: agentId,
-      property_title: propertyTitle,
-      status: 'pending' as const,
-      ...(paymentId && { payment_id: paymentId })
+    const requestData: Omit<FeaturedRequest, 'id'> = {
+      propertyId,
+      agentId,
+      propertyTitle,
+      requestDate: new Date().toISOString(),
+      status: 'pending',
+      ...(paymentId && { 
+        paymentId,
+        paymentStatus: 'success'
+      })
     };
     
-    const { data, error } = await supabase
-      .from('featured_requests')
-      .insert([requestData])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data.id;
+    const docRef = await addDoc(collection(db, FEATURED_REQUESTS_COLLECTION), requestData);
+    return docRef.id;
   } catch (error) {
     console.error('Error requesting featured property:', error);
     throw error;
@@ -44,13 +45,15 @@ export const requestFeaturedProperty = async (
 
 export const getFeaturedRequests = async () => {
   try {
-    const { data, error } = await supabase
-      .from('featured_requests')
-      .select('*')
-      .order('requested_at', { ascending: false });
-
-    if (error) throw error;
-    return data as FeaturedRequest[];
+    const q = query(collection(db, FEATURED_REQUESTS_COLLECTION), orderBy('requestDate', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const requests: FeaturedRequest[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as FeaturedRequest));
+    
+    return requests;
   } catch (error) {
     console.error('Error getting featured requests:', error);
     throw error;
@@ -63,15 +66,12 @@ export const updateFeaturedRequestStatus = async (
   adminNotes?: string
 ) => {
   try {
-    const { error } = await supabase
-      .from('featured_requests')
-      .update({ 
-        status,
-        reviewed_at: new Date().toISOString()
-      })
-      .eq('id', requestId);
-
-    if (error) throw error;
+    const requestRef = doc(db, FEATURED_REQUESTS_COLLECTION, requestId);
+    await updateDoc(requestRef, { 
+      status, 
+      adminNotes: adminNotes || '',
+      updatedDate: new Date().toISOString()
+    });
   } catch (error) {
     console.error('Error updating featured request:', error);
     throw error;
@@ -80,18 +80,17 @@ export const updateFeaturedRequestStatus = async (
 
 export const getFeaturedRequestStatus = async (propertyId: string, agentId: string) => {
   try {
-    const { data, error } = await supabase
-      .from('featured_requests')
-      .select('*')
-      .eq('property_id', propertyId)
-      .eq('agent_id', agentId)
-      .order('requested_at', { ascending: false })
-      .limit(1);
-
-    if (error) throw error;
+    const q = query(
+      collection(db, FEATURED_REQUESTS_COLLECTION), 
+      where('propertyId', '==', propertyId),
+      where('agentId', '==', agentId),
+      orderBy('requestDate', 'desc')
+    );
+    const querySnapshot = await getDocs(q);
     
-    if (data && data.length > 0) {
-      return data[0].status;
+    if (!querySnapshot.empty) {
+      const latestRequest = querySnapshot.docs[0].data() as FeaturedRequest;
+      return latestRequest.status;
     }
     
     return 'none' as const;

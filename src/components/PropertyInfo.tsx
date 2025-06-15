@@ -16,7 +16,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
         
         <div className="flex items-center gap-2 mb-6 text-gray-600">
           <MapPin className="w-4 h-4" />
-          <span>{property.location}</span>
+          <span>{property.address}, {property.city}, {property.state}</span>
         </div>
 
         <div className="flex gap-6 mb-6">
@@ -30,7 +30,7 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
           </div>
           <div className="flex items-center gap-2">
             <Square className="w-4 h-4 text-gray-500" />
-            <span>{property.size_sqft} sq ft</span>
+            <span>{property.area} sq ft</span>
           </div>
         </div>
 
@@ -41,12 +41,12 @@ const PropertyInfo = ({ property }: PropertyInfoProps) => {
 
         <div className="mb-6">
           <h2 className="text-xl font-semibold mb-3">Location</h2>
-          <PropertyMap address={property.location} />
+          <PropertyMap address={`${property.address}, ${property.city}, ${property.state}`} />
         </div>
 
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <Calendar className="w-4 h-4" />
-          <span>Listed on {new Date(property.created_at).toLocaleDateString()}</span>
+          <span>Listed on {new Date(property.dateAdded).toLocaleDateString()}</span>
         </div>
       </CardContent>
     </Card>

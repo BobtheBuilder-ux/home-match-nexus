@@ -6,14 +6,14 @@ import Header from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { createUserProfile } from "@/services/userService";
+import { signInAnonymously } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const AdminLogin = () => {
   const { user, userProfile } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -32,64 +32,28 @@ const AdminLogin = () => {
     setError("");
     setLoading(true);
 
+    if (email !== "admin@mecwebcraft.com") {
+      setError("Only admin@mecwebcraft.com is authorized to access this portal");
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Sign in with email and password
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      // Sign in anonymously first to get a user object
+      const userCredential = await signInAnonymously(auth);
+      const user = userCredential.user;
+
+      // Create admin profile
+      await createUserProfile({
+        userId: user.uid,
         email: email,
-        password: password,
+        displayName: "Admin",
+        role: 'admin',
+        createdAt: new Date().toISOString(),
+        isApproved: true
       });
 
-      if (signInError) {
-        console.error("Admin sign in error:", signInError);
-        setError(signInError.message || "Login failed. Please check your credentials.");
-        setLoading(false);
-        return;
-      }
-
-      // Check if user profile exists and has admin role
-      if (data.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-
-        if (profileError || !profile) {
-          // Create admin profile if it doesn't exist
-          const { error: createError } = await supabase
-            .from('profiles')
-            .insert([{
-              id: data.user.id,
-              email: email,
-              display_name: "Admin",
-              role: 'admin',
-              is_approved: true
-            }]);
-
-          if (createError) {
-            console.error("Error creating admin profile:", createError);
-            setError("Failed to create admin profile");
-            setLoading(false);
-            return;
-          }
-        } else if (profile.role !== 'admin') {
-          // Update existing profile to admin role
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .update({ role: 'admin', is_approved: true })
-            .eq('id', data.user.id);
-
-          if (updateError) {
-            console.error("Error updating user role:", updateError);
-            setError("Failed to update user role");
-            setLoading(false);
-            return;
-          }
-        }
-
-        toast.success("Admin login successful!");
-        // Navigation will be handled by the useEffect hook
-      }
+      // Navigation will be handled by the useEffect hook
     } catch (error) {
       console.error("Admin login failed:", error);
       setError("Login failed. Please try again.");
@@ -125,21 +89,7 @@ const AdminLogin = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your admin email address"
-                  required
-                  className="mt-1"
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                  placeholder="Enter your email address"
                   required
                   className="mt-1"
                   disabled={loading}
@@ -160,13 +110,7 @@ const AdminLogin = () => {
               </Button>
             </form>
 
-            <div className="mt-6 text-center space-y-2">
-              <p className="text-neutral-600">
-                Need to create an admin account?{" "}
-                <a href="/admin-signup" className="text-primary-600 hover:text-primary-700 font-medium">
-                  Admin signup
-                </a>
-              </p>
+            <div className="mt-6 text-center">
               <p className="text-neutral-600">
                 Not an admin?{" "}
                 <a href="/login" className="text-primary-600 hover:text-primary-700 font-medium">

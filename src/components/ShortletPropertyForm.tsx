@@ -53,19 +53,17 @@ const ShortletPropertyForm = () => {
 
     try {
       const propertyData = {
-        title: formData.title,
-        description: formData.description,
-        location: `${formData.address}, ${formData.city}, ${formData.state}`,
+        ...formData,
         price: parseFloat(formData.price) || 0,
         bedrooms: parseInt(formData.bedrooms) || 0,
         bathrooms: parseFloat(formData.bathrooms) || 0,
-        size_sqft: parseInt(formData.area) || 0,
-        property_type: formData.propertyType,
-        status: (isDraft ? "pending" : "available") as "available" | "pending" | "rented",
+        area: parseInt(formData.area) || 0,
+        status: (isDraft ? "draft" : "active") as "active" | "draft" | "rented",
         images: [],
-        amenities: [],
-        agent_id: user.id,
-        is_featured: false,
+        videos: [],
+        agentId: user.uid,
+        dateAdded: new Date().toISOString(),
+        dateUpdated: new Date().toISOString(),
       };
 
       await addProperty(propertyData);

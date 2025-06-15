@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MapPin, Bed, Bath, Maximize, Heart, Share2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,12 +21,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length);
   };
 
-  // Use location directly from the property
-  const location = property.location;
+  // Create location string from address components
+  const location = `${property.city}, ${property.state}`;
 
   // Define pricing label based on property type
   let pricingLabel = "per year";
-  if (property.property_type === "shortlet") {
+  if (property.propertyType === "shortlet") {
     pricingLabel = "per night";
   }
 
@@ -84,10 +83,10 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {property.status === 'available' && new Date(property.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+          {property.status === 'active' && new Date(property.dateAdded) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
             <Badge className="bg-success text-white">New</Badge>
           )}
-          {property.is_featured && (
+          {property.isFeatured && (
             <Badge className="bg-primary-600 text-white">Featured</Badge>
           )}
         </div>
@@ -145,16 +144,16 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
           <div className="flex items-center">
             <Maximize className="w-4 h-4 mr-1" />
-            <span className="text-sm">{property.size_sqft} sqft</span>
+            <span className="text-sm">{property.area} sqft</span>
           </div>
         </div>
 
         {/* Property Type Badge */}
         <div className="flex flex-wrap gap-1 mb-4">
           <Badge variant="secondary" className="text-xs bg-neutral-100 text-neutral-700 capitalize">
-            {property.property_type}
+            {property.propertyType}
           </Badge>
-          {property.status === 'available' && (
+          {property.status === 'active' && (
             <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
               Available
             </Badge>

@@ -28,7 +28,7 @@ const PaymentHistory = () => {
     if (!user) return;
     
     try {
-      const userPayments = await getPaymentsByAgent(user.id);
+      const userPayments = await getPaymentsByAgent(user.uid);
       setPayments(userPayments);
     } catch (error) {
       console.error('Error fetching payments:', error);
@@ -82,12 +82,12 @@ const PaymentHistory = () => {
           <TableBody>
             {payments.map((payment) => (
               <TableRow key={payment.id}>
-                <TableCell className="font-medium">{payment.property_title}</TableCell>
+                <TableCell className="font-medium">{payment.propertyTitle}</TableCell>
                 <TableCell>₦{payment.amount.toLocaleString()}</TableCell>
                 <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                <TableCell>{new Date(payment.transaction_date).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(payment.transactionDate).toLocaleDateString()}</TableCell>
                 <TableCell className="text-sm text-gray-500">
-                  {payment.paystack_reference}
+                  {payment.paystackReference}
                 </TableCell>
               </TableRow>
             ))}

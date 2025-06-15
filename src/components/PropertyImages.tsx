@@ -10,9 +10,10 @@ interface PropertyImagesProps {
 const PropertyImages = ({ property }: PropertyImagesProps) => {
   const [selected, setSelected] = useState(0);
 
-  // For now, only show images since videos aren't part of the Property interface
+  // Merge images and videos as items for the gallery
   const galleryItems = [
     ...(property.images || []).map((src) => ({ type: "image", src })),
+    ...(property.videos || []).map((src) => ({ type: "video", src })),
   ];
 
   if (galleryItems.length === 0) {
@@ -30,11 +31,19 @@ const PropertyImages = ({ property }: PropertyImagesProps) => {
           {galleryItems.map((item, idx) => (
             <CarouselItem key={idx}>
               <div className="aspect-video w-full rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
-                <img
-                  src={item.src}
-                  alt={`Property media ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
+                {item.type === "image" ? (
+                  <img
+                    src={item.src}
+                    alt={`Property media ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <video
+                    src={item.src}
+                    controls
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
             </CarouselItem>
           ))}

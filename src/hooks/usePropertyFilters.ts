@@ -22,20 +22,23 @@ export const usePropertyFilters = (properties: Property[], filters: Filters) => 
       if (filters.location && filters.location.trim()) {
         const searchTerm = filters.location.toLowerCase().trim();
         const locationMatch = 
-          property.location.toLowerCase().includes(searchTerm) ||
+          property.city.toLowerCase().includes(searchTerm) ||
+          property.state.toLowerCase().includes(searchTerm) ||
+          property.address.toLowerCase().includes(searchTerm) ||
           // Also check for partial matches and common variations
-          searchTerm.includes(property.location.toLowerCase());
+          searchTerm.includes(property.city.toLowerCase()) ||
+          searchTerm.includes(property.state.toLowerCase());
         
         if (!locationMatch) {
-          console.log(`Location filter failed for: ${property.location}`);
+          console.log(`Location filter failed for: ${property.city}, ${property.state}`);
           return false;
         }
       }
       
       // Property type filter
       if (filters.type && filters.type !== 'any') {
-        if (property.property_type !== filters.type) {
-          console.log(`Type filter failed for property: ${property.id}, expected: ${filters.type}, actual: ${property.property_type}`);
+        if (property.propertyType !== filters.type) {
+          console.log(`Type filter failed for property: ${property.id}, expected: ${filters.type}, actual: ${property.propertyType}`);
           return false;
         }
       }
@@ -81,9 +84,9 @@ export const usePropertyFilters = (properties: Property[], filters: Filters) => 
         case 'price-high':
           return b.price - a.price;
         case 'size':
-          return b.size_sqft - a.size_sqft;
+          return b.area - a.area;
         case 'newest':
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
         default:
           return 0;
       }

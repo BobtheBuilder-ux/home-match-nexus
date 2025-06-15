@@ -59,16 +59,16 @@ const FeaturedRequestsTable: React.FC<FeaturedRequestsTableProps> = ({
           <TableBody>
             {requests.map((request) => (
               <TableRow key={request.id}>
-                <TableCell className="font-medium">{request.property_title}</TableCell>
-                <TableCell>{getAgentName(request.agent_id!)}</TableCell>
-                <TableCell>{new Date(request.requested_at).toLocaleDateString()}</TableCell>
-                <TableCell>{getStatusBadge(request.status!)}</TableCell>
+                <TableCell className="font-medium">{request.propertyTitle}</TableCell>
+                <TableCell>{getAgentName(request.agentId)}</TableCell>
+                <TableCell>{new Date(request.requestDate).toLocaleDateString()}</TableCell>
+                <TableCell>{getStatusBadge(request.status)}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => window.open(`/property/${request.property_id}`, '_blank')}
+                      onClick={() => window.open(`/property/${request.propertyId}`, '_blank')}
                     >
                       <Eye className="w-4 h-4" />
                     </Button>

@@ -36,12 +36,12 @@ const FeaturedPropertiesTable: React.FC<FeaturedPropertiesTableProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {properties.filter(p => p.is_featured).map((property) => (
+            {properties.filter(p => p.isFeatured).map((property) => (
               <TableRow key={property.id}>
                 <TableCell className="font-medium">{property.title}</TableCell>
-                <TableCell>{getAgentName(property.agent_id)}</TableCell>
-                <TableCell>₦{property.price.toLocaleString()}/year</TableCell>
-                <TableCell>{new Date(property.created_at).toLocaleDateString()}</TableCell>
+                <TableCell>{getAgentName(property.agentId)}</TableCell>
+                <TableCell>${property.price}/month</TableCell>
+                <TableCell>{new Date(property.dateAdded).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <Button
                     variant="ghost"
@@ -55,7 +55,7 @@ const FeaturedPropertiesTable: React.FC<FeaturedPropertiesTableProps> = ({
             ))}
           </TableBody>
         </Table>
-        {properties.filter(p => p.is_featured).length === 0 && (
+        {properties.filter(p => p.isFeatured).length === 0 && (
           <div className="text-center py-8 text-gray-500">
             No featured properties found.
           </div>

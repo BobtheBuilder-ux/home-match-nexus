@@ -14,7 +14,7 @@ const FeaturedShortlets = () => {
     const fetchShortletProps = async () => {
       const allProps = await getProperties();
       const filtered = allProps.filter(
-        (p) => p.property_type === "shortlet" && p.status === "available" && p.is_featured
+        (p) => p.propertyType === "shortlet" && p.status === "active" && p.isFeatured
       ).slice(0, 4);
       setShortlets(filtered);
       setLoading(false);

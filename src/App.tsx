@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,7 +13,6 @@ import ForAgents from "./pages/ForAgents";
 import Login from "./pages/Login";
 import AgentLogin from "./pages/AgentLogin";
 import AdminLogin from "./pages/AdminLogin";
-import AdminSignUp from "./pages/AdminSignUp";
 import SignUp from "./pages/SignUp";
 import AgentDashboard from "./pages/AgentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -41,7 +41,6 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/agent-login" element={<AgentLogin />} />
             <Route path="/admin-login" element={<AdminLogin />} />
-            <Route path="/admin-signup" element={<AdminSignUp />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/for-agents" element={<ForAgents />} />
 

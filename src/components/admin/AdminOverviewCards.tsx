@@ -34,10 +34,10 @@ const AdminOverviewCards: React.FC<AdminOverviewCardsProps> = ({
               <div key={property.id} className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{property.title}</p>
-                  <p className="text-sm text-gray-500">{property.location} • ₦{property.price.toLocaleString()}/year</p>
+                  <p className="text-sm text-gray-500">{property.address} • ${property.price}/month</p>
                 </div>
-                <Badge className={getStatusColor(property.status || 'available')}>
-                  {property.status || 'available'}
+                <Badge className={getStatusColor(property.status || 'active')}>
+                  {property.status || 'active'}
                 </Badge>
               </div>
             ))}
@@ -51,16 +51,16 @@ const AdminOverviewCards: React.FC<AdminOverviewCardsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {users.filter(u => u.role === 'agent' && !u.is_approved).slice(0, 5).map((user) => (
-              <div key={user.id} className="flex items-center justify-between">
+            {users.filter(u => u.role === 'agent' && !u.isApproved).slice(0, 5).map((user) => (
+              <div key={user.userId} className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">{user.display_name}</p>
+                  <p className="font-medium">{user.displayName}</p>
                   <p className="text-sm text-gray-500">{user.email}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
-                    onClick={() => handleApproveAgent(user.id)}
+                    onClick={() => handleApproveAgent(user.userId)}
                     className="bg-green-600 hover:bg-green-700"
                   >
                     <Check className="w-4 h-4" />
@@ -68,7 +68,7 @@ const AdminOverviewCards: React.FC<AdminOverviewCardsProps> = ({
                   <Button
                     size="sm"
                     variant="destructive"
-                    onClick={() => handleRejectAgent(user.id)}
+                    onClick={() => handleRejectAgent(user.userId)}
                   >
                     <X className="w-4 h-4" />
                   </Button>
