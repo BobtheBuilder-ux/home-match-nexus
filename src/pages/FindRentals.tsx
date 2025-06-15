@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
@@ -22,7 +21,7 @@ const FindRentals = () => {
     type: "any",
     bedrooms: "any",
     priceMin: 0,
-    priceMax: 50000,
+    priceMax: 5000000,
     amenities: [] as string[],
     sortBy: "relevance"
   });
@@ -75,7 +74,7 @@ const FindRentals = () => {
       type: "any",
       bedrooms: "any",
       priceMin: 0,
-      priceMax: 50000,
+      priceMax: 5000000,
       amenities: [],
       sortBy: "relevance"
     });

@@ -13,6 +13,7 @@ export interface Property {
   propertyType: 'apartment' | 'house' | 'studio' | 'shared';
   status: 'active' | 'draft' | 'rented';
   images: string[];
+  videos?: string[];
   agentId: string;
   dateAdded: string;
   dateUpdated: string;

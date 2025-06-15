@@ -4,6 +4,24 @@ import { ABUJA_AREAS, STREET_NAMES, PROPERTY_DESCRIPTIONS, SAMPLE_AGENT_IDS } fr
 export const generateProperties = (count: number = 55) => {
   const properties = [];
   
+  const sampleImages = [
+    "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1494526585095-c41746248156?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop",
+  ];
+
+  const sampleVideos = [
+    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+  ];
+  
   for (let i = 0; i < count; i++) {
     const area = ABUJA_AREAS[Math.floor(Math.random() * ABUJA_AREAS.length)];
     const street = STREET_NAMES[Math.floor(Math.random() * STREET_NAMES.length)];
@@ -41,12 +59,8 @@ export const generateProperties = (count: number = 55) => {
       area: Math.floor(Math.random() * 1500) + 500, // 500-2000 sqft
       propertyType: propertyType as 'apartment' | 'house' | 'studio' | 'shared',
       status: Math.random() > 0.1 ? 'active' as const : 'draft' as const, // 90% active
-      images: [
-        "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&h=600&fit=crop",
-        "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&h=600&fit=crop"
-      ].slice(0, Math.floor(Math.random() * 3) + 1), // 1-3 images per property
+      images: sampleImages.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 8) + 3),
+      videos: sampleVideos.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 3)),
       agentId: SAMPLE_AGENT_IDS[Math.floor(Math.random() * SAMPLE_AGENT_IDS.length)],
       dateAdded: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(), // Random date within last 30 days
       dateUpdated: new Date().toISOString(),

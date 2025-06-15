@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import PropertyDetailsForm from "./PropertyDetailsForm";
 import ImageUploadSection from "./ImageUploadSection";
+import VideoUploadSection from "./VideoUploadSection";
 
 const PropertyForm = () => {
   const [formData, setFormData] = useState({
@@ -21,6 +22,8 @@ const PropertyForm = () => {
     area: "",
     propertyType: "apartment" as 'apartment' | 'house' | 'studio' | 'shared'
   });
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [videoFiles, setVideoFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   
   const { user } = useAuth();
@@ -42,6 +45,11 @@ const PropertyForm = () => {
     }
 
     setLoading(true);
+
+    // In a real app, you would upload files to a storage service (like Firebase Storage)
+    // and get back the URLs before saving the property data.
+    console.log("Selected image files:", imageFiles);
+    console.log("Selected video files:", videoFiles);
     
     try {
       const propertyData = {
@@ -51,13 +59,14 @@ const PropertyForm = () => {
         bathrooms: parseFloat(formData.bathrooms) || 0,
         area: parseInt(formData.area) || 0,
         status: (isDraft ? 'draft' : 'active') as 'active' | 'draft' | 'rented',
-        images: [],
+        images: [], // Placeholder for uploaded image URLs
+        videos: [], // Placeholder for uploaded video URLs
         agentId: user.uid,
         dateAdded: new Date().toISOString(),
         dateUpdated: new Date().toISOString()
       };
 
-      const propertyId = await addProperty(propertyData);
+      await addProperty(propertyData);
       toast.success(isDraft ? "Property saved as draft" : "Property published successfully!");
       navigate('/agent-dashboard');
     } catch (error) {
@@ -75,7 +84,10 @@ const PropertyForm = () => {
       <form className="space-y-6">
         <PropertyDetailsForm formData={formData} onInputChange={handleInputChange} />
         
-        <ImageUploadSection />
+        <div className="space-y-6">
+          <ImageUploadSection onFilesSelect={setImageFiles} disabled={loading} />
+          <VideoUploadSection onFilesSelect={setVideoFiles} disabled={loading} />
+        </div>
 
         <div className="flex gap-4 pt-6">
           <Button 

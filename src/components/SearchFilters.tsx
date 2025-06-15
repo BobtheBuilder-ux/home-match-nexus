@@ -109,19 +109,19 @@ const SearchFilters = ({ filters, onFiltersChange, onClearFilters }: SearchFilte
         {/* Price Range */}
         <div>
           <Label className="text-sm font-medium mb-3 block">
-            Price Range: ${priceRange[0]} - ${priceRange[1]}
+            Price Range: ₦{priceRange[0].toLocaleString()} - ₦{priceRange[1].toLocaleString()}
           </Label>
           <Slider
             value={priceRange}
             onValueChange={handlePriceRangeChange}
-            max={50000}
+            max={5000000}
             min={0}
-            step={500}
+            step={50000}
             className="mb-2"
           />
           <div className="flex justify-between text-xs text-gray-500">
-            <span>$0</span>
-            <span>$50000+</span>
+            <span>₦0</span>
+            <span>₦5M+</span>
           </div>
         </div>
 
