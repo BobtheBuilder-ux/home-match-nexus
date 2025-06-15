@@ -5,22 +5,22 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-
 const ForAgents = () => {
-  const { user, userProfile, registerAsAgent } = useAuth();
+  const {
+    user,
+    userProfile,
+    registerAsAgent
+  } = useAuth();
   const navigate = useNavigate();
-
   const handleJoinAsAgent = async () => {
     if (!user) {
       navigate('/login');
       return;
     }
-
     if (userProfile?.role === 'agent') {
       toast.info('You are already registered as an agent. Waiting for admin approval.');
       return;
     }
-
     try {
       await registerAsAgent();
       toast.success('Successfully registered as an agent! Please wait for admin approval.');
@@ -29,46 +29,30 @@ const ForAgents = () => {
       toast.error('Failed to register as agent. Please try again.');
     }
   };
-
-  const benefits = [
-    {
-      icon: Users,
-      title: "Access to Quality Clients",
-      description: "Connect with pre-qualified renters and serious property seekers looking for professional guidance."
-    },
-    {
-      icon: TrendingUp,
-      title: "Increase Your Revenue",
-      description: "Expand your business with our commission-based model and performance bonuses for top agents."
-    },
-    {
-      icon: Shield,
-      title: "Verified Listings",
-      description: "All properties go through our verification process, ensuring quality and legitimacy for your clients."
-    },
-    {
-      icon: Star,
-      title: "Professional Profile",
-      description: "Showcase your expertise with detailed profiles, client reviews, and performance metrics."
-    }
-  ];
-
-  const features = [
-    "Lead generation and client matching",
-    "Professional dashboard and analytics",
-    "Marketing tools and templates",
-    "24/7 customer support",
-    "Mobile app for on-the-go management",
-    "Integration with popular CRM systems"
-  ];
-
+  const benefits = [{
+    icon: Users,
+    title: "Access to Quality Clients",
+    description: "Connect with pre-qualified renters and serious property seekers looking for professional guidance."
+  }, {
+    icon: TrendingUp,
+    title: "Increase Your Revenue",
+    description: "Expand your business with our commission-based model and performance bonuses for top agents."
+  }, {
+    icon: Shield,
+    title: "Verified Listings",
+    description: "All properties go through our verification process, ensuring quality and legitimacy for your clients."
+  }, {
+    icon: Star,
+    title: "Professional Profile",
+    description: "Showcase your expertise with detailed profiles, client reviews, and performance metrics."
+  }];
+  const features = ["Lead generation and client matching", "Professional dashboard and analytics", "Marketing tools and templates", "24/7 customer support", "Mobile app for on-the-go management", "Integration with popular CRM systems"];
   const getButtonText = () => {
     if (!user) return "Join as Agent";
     if (userProfile?.role === 'agent' && !userProfile?.isApproved) return "Pending Approval";
     if (userProfile?.role === 'agent' && userProfile?.isApproved) return "Agent Dashboard";
     return "Join as Agent";
   };
-
   const handleButtonClick = () => {
     if (userProfile?.role === 'agent' && userProfile?.isApproved) {
       navigate('/agent-dashboard');
@@ -76,9 +60,7 @@ const ForAgents = () => {
       handleJoinAsAgent();
     }
   };
-
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Header />
       
       <div className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-20">
@@ -92,15 +74,10 @@ const ForAgents = () => {
               Our platform is designed to help you close more deals and build lasting relationships.
             </p>
             <div className="flex gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-white text-primary-600 hover:bg-neutral-100"
-                onClick={handleButtonClick}
-                disabled={userProfile?.role === 'agent' && !userProfile?.isApproved}
-              >
+              <Button size="lg" className="bg-white text-primary-600 hover:bg-neutral-100" onClick={handleButtonClick} disabled={userProfile?.role === 'agent' && !userProfile?.isApproved}>
                 {getButtonText()}
               </Button>
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
+              <Button variant="outline" size="lg" className="border-white text-blue hover:bg-white hover:text-primary-600">
                 <Phone className="w-5 h-5 mr-2" />
                 Schedule Demo
               </Button>
@@ -121,8 +98,7 @@ const ForAgents = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg p-8 border border-neutral-200">
+            {benefits.map((benefit, index) => <div key={index} className="bg-white rounded-lg shadow-lg p-8 border border-neutral-200">
                 <div className="flex items-center mb-4">
                   <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mr-4">
                     <benefit.icon className="w-6 h-6 text-primary-600" />
@@ -130,8 +106,7 @@ const ForAgents = () => {
                   <h3 className="text-xl font-semibold text-neutral-900">{benefit.title}</h3>
                 </div>
                 <p className="text-neutral-600 leading-relaxed">{benefit.description}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -149,12 +124,10 @@ const ForAgents = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-center">
+              {features.map((feature, index) => <div key={index} className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-primary-600 mr-3 flex-shrink-0" />
                   <span className="text-neutral-700">{feature}</span>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
         </div>
@@ -169,12 +142,7 @@ const ForAgents = () => {
             Join thousands of successful agents who are growing their business with HomeMatch.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg" 
-              className="bg-white text-primary-600 hover:bg-neutral-100"
-              onClick={handleButtonClick}
-              disabled={userProfile?.role === 'agent' && !userProfile?.isApproved}
-            >
+            <Button size="lg" className="bg-white text-primary-600 hover:bg-neutral-100" onClick={handleButtonClick} disabled={userProfile?.role === 'agent' && !userProfile?.isApproved}>
               {getButtonText()}
             </Button>
             <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-primary-600">
@@ -185,8 +153,6 @@ const ForAgents = () => {
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ForAgents;
