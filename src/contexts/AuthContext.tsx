@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               isApproved: role === 'admin' || role === 'customer' // Agents need approval
             };
             
-            profile = await createUserProfile(newProfile) as UserProfile;
+            profile = await createUserProfile(newProfile);
           }
           
           setUserProfile(profile);
