@@ -1,56 +1,40 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import SearchFilters from "@/components/SearchFilters";
 import SearchHeader from "@/components/SearchHeader";
+import SearchFilters from "@/components/SearchFilters";
 import PropertyList from "@/components/PropertyList";
 import { usePropertyFilters } from "@/hooks/usePropertyFilters";
 import { getProperties } from "@/services/propertyService";
 import { Property } from "@/types/property";
 
 const FindRentals = () => {
-  const [searchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchLocation, setSearchLocation] = useState("");
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [filters, setFilters] = useState({
     location: "",
     type: "any",
     bedrooms: "any",
     priceMin: 0,
-    priceMax: 5000000,
+    priceMax: 10000000,
     amenities: [] as string[],
-    sortBy: "relevance"
+    sortBy: "newest"
   });
 
-  // Initialize filters from URL parameters
-  useEffect(() => {
-    const location = searchParams.get('location') || searchParams.get('search') || "";
-    const type = searchParams.get('type') || "any";
-    const bedrooms = searchParams.get('bedrooms') || "any";
-    
-    setSearchQuery(location);
-    setFilters(prev => ({ 
-      ...prev, 
-      location, 
-      type, 
-      bedrooms 
-    }));
-  }, [searchParams]);
-
-  // Fetch properties from Firebase
   useEffect(() => {
     const fetchProperties = async () => {
+      setLoading(true);
       try {
-        console.log('Fetching properties from Firebase...');
-        const fetchedProperties = await getProperties();
-        console.log('Fetched properties:', fetchedProperties);
-        // Only show active properties
-        const activeProperties = fetchedProperties.filter(property => property.status === 'active');
-        setProperties(activeProperties);
+        const allProperties = await getProperties();
+        // Filter only available properties, not "active"
+        const availableProperties = allProperties.filter(p => p.status === 'available');
+        setProperties(availableProperties);
       } catch (error) {
         console.error('Error fetching properties:', error);
       } finally {
@@ -61,32 +45,41 @@ const FindRentals = () => {
     fetchProperties();
   }, []);
 
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const locationParam = urlParams.get('location');
+    if (locationParam) {
+      setSearchLocation(locationParam);
+      setFilters(prev => ({ ...prev, location: locationParam }));
+    }
+  }, [location.search]);
+
   const filteredProperties = usePropertyFilters(properties, filters);
 
-  const handleSearch = () => {
-    console.log("Searching with query:", searchQuery);
-    setFilters(prev => ({ ...prev, location: searchQuery }));
+  const handleSearch = (location: string) => {
+    setSearchLocation(location);
+    setFilters(prev => ({ ...prev, location }));
+    
+    if (location.trim()) {
+      navigate(`/find-rentals?location=${encodeURIComponent(location)}`);
+    } else {
+      navigate('/find-rentals');
+    }
   };
 
-  const handleClearFilters = () => {
-    setFilters({
-      location: "",
-      type: "any",
-      bedrooms: "any",
-      priceMin: 0,
-      priceMax: 5000000,
-      amenities: [],
-      sortBy: "relevance"
-    });
-    setSearchQuery("");
+  const handleFilterChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">Loading properties...</div>
+        <div className="flex items-center justify-center py-16">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-neutral-600">Finding perfect homes for you...</p>
+          </div>
         </div>
         <Footer />
       </div>
@@ -98,36 +91,31 @@ const FindRentals = () => {
       <Header />
       
       <SearchHeader 
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        showFilters={showFilters}
-        setShowFilters={setShowFilters}
+        searchLocation={searchLocation}
         onSearch={handleSearch}
+        resultsCount={filteredProperties.length}
       />
-
+      
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {showFilters && (
-            <div className="lg:col-span-1">
-              <SearchFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-                onClearFilters={handleClearFilters}
-              />
-            </div>
-          )}
-
-          <div className={showFilters ? "lg:col-span-3" : "lg:col-span-4"}>
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="lg:w-1/4">
+            <SearchFilters 
+              filters={filters}
+              onFilterChange={handleFilterChange}
+            />
+          </div>
+          
+          <div className="lg:w-3/4">
             <PropertyList 
               properties={filteredProperties}
               viewMode={viewMode}
               setViewMode={setViewMode}
-              searchLocation={filters.location}
+              searchLocation={searchLocation}
             />
           </div>
         </div>
       </div>
-
+      
       <Footer />
     </div>
   );

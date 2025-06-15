@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,12 +44,13 @@ const AdminLogin = () => {
 
       // Create admin profile
       await createUserProfile({
-        userId: user.uid,
+        id: user.uid,
         email: email,
-        displayName: "Admin",
+        display_name: "Admin",
         role: 'admin',
-        createdAt: new Date().toISOString(),
-        isApproved: true
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_approved: true
       });
 
       // Navigation will be handled by the useEffect hook

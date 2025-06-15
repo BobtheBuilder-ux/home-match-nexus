@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,7 +21,7 @@ const AgentLogin = () => {
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithGoogle(true); // Pass true to indicate agent login
+      await signInWithGoogle(); // Remove the parameter
     } catch (error) {
       console.error("Agent sign in failed:", error);
     }

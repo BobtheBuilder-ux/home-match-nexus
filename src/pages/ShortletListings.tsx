@@ -15,7 +15,7 @@ const ShortletListings = () => {
     const getShortlets = async () => {
       const allProps = await getProperties();
       setProperties(allProps.filter(
-        (p) => p.propertyType === "shortlet" && p.status === "active"
+        (p) => p.property_type === "shortlet" && p.status === "available"
       ));
       setLoading(false);
     };

@@ -1,29 +1,26 @@
 
-import { useState, useEffect } from "react";
-import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import FeaturedProperties from "@/components/FeaturedProperties";
-import HowItWorks from "@/components/HowItWorks";
-import Footer from "@/components/Footer";
 import FeaturedShortlets from "@/components/FeaturedShortlets";
-import { getProperties } from "@/services/propertyService";
+import HowItWorks from "@/components/HowItWorks";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { useState, useEffect } from "react";
 import { Property } from "@/types/property";
+import { getFeaturedProperties } from "@/services/propertyService";
 
 const Index = () => {
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFeaturedProperties = async () => {
       try {
-        const properties = await getProperties();
-        // Filter for featured properties
-        const featured = properties.filter(property => property.isFeatured).slice(0, 4);
+        const properties = await getFeaturedProperties();
+        // Filter properties that are featured
+        const featured = properties.filter(p => p.is_featured);
         setFeaturedProperties(featured);
       } catch (error) {
         console.error('Error fetching featured properties:', error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -31,12 +28,10 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white font-inter">
+    <div className="min-h-screen bg-white">
       <Header />
-      
       <HeroSection />
-      <FeaturedProperties properties={featuredProperties} loading={loading} />
-      {/* Add featured shortlet apartments section below regular featured */}
+      <FeaturedProperties properties={featuredProperties} />
       <FeaturedShortlets />
       <HowItWorks />
       <Footer />

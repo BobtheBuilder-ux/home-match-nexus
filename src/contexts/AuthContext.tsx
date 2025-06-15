@@ -21,6 +21,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   updateUserRole: (role: 'customer' | 'agent' | 'admin') => Promise<void>;
+  registerAsAgent: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -168,6 +169,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const registerAsAgent = async () => {
+    if (!user) throw new Error('No user logged in');
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          role: 'agent',
+          is_approved: false 
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Error registering as agent:', error);
+        toast.error('Failed to register as agent');
+        throw error;
+      }
+
+      // Update local profile state
+      if (userProfile) {
+        setUserProfile({ 
+          ...userProfile, 
+          role: 'agent',
+          is_approved: false 
+        });
+      }
+      
+      toast.success('Successfully registered as agent! Please wait for admin approval.');
+    } catch (error) {
+      console.error('Failed to register as agent:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     session,
@@ -176,6 +211,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signInWithGoogle,
     signOut,
     updateUserRole,
+    registerAsAgent,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
