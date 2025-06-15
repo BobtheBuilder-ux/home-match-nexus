@@ -50,8 +50,8 @@ const UsersTable: React.FC<UsersTableProps> = ({
           </TableHeader>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.userId}>
-                <TableCell className="font-medium">{user.displayName}</TableCell>
+              <TableRow key={user.id}>
+                <TableCell className="font-medium">{user.display_name}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <Badge variant="outline" className="capitalize">
@@ -60,14 +60,14 @@ const UsersTable: React.FC<UsersTableProps> = ({
                 </TableCell>
                 <TableCell>
                   {user.role === 'agent' ? (
-                    <Badge className={getStatusColor(user.isApproved ? 'approved' : 'pending')}>
-                      {user.isApproved ? 'Approved' : 'Pending'}
+                    <Badge className={getStatusColor(user.is_approved ? 'approved' : 'pending')}>
+                      {user.is_approved ? 'Approved' : 'Pending'}
                     </Badge>
                   ) : (
-                    <Badge className={getStatusColor('active')}>Active</Badge>
+                    <Badge className={getStatusColor('available')}>Active</Badge>
                   )}
                 </TableCell>
-                <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Dialog>
@@ -83,7 +83,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                         <div className="space-y-4">
                           <div>
                             <label className="text-sm font-medium">Name</label>
-                            <p className="text-sm text-gray-600">{user.displayName}</p>
+                            <p className="text-sm text-gray-600">{user.display_name}</p>
                           </div>
                           <div>
                             <label className="text-sm font-medium">Email</label>
@@ -95,17 +95,17 @@ const UsersTable: React.FC<UsersTableProps> = ({
                           </div>
                           <div>
                             <label className="text-sm font-medium">Joined</label>
-                            <p className="text-sm text-gray-600">{new Date(user.createdAt).toLocaleDateString()}</p>
+                            <p className="text-sm text-gray-600">{new Date(user.created_at).toLocaleDateString()}</p>
                           </div>
                         </div>
                       </DialogContent>
                     </Dialog>
                     
-                    {user.role === 'agent' && !user.isApproved && (
+                    {user.role === 'agent' && !user.is_approved && (
                       <>
                         <Button
                           size="sm"
-                          onClick={() => handleApproveAgent(user.userId)}
+                          onClick={() => handleApproveAgent(user.id)}
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <Check className="w-4 h-4" />
@@ -113,7 +113,7 @@ const UsersTable: React.FC<UsersTableProps> = ({
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => handleRejectAgent(user.userId)}
+                          onClick={() => handleRejectAgent(user.id)}
                         >
                           <X className="w-4 h-4" />
                         </Button>

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,14 +53,14 @@ const RequestFeaturedDialog = ({
       
       // Create payment record first
       const paymentRecord = {
-        propertyId,
-        agentId: user.uid,
-        propertyTitle,
+        property_id: propertyId,
+        agent_id: user.id,
+        property_title: propertyTitle,
         amount: FEATURED_FEE,
         currency: 'NGN',
         status: 'pending' as const,
-        paystackReference: reference,
-        transactionDate: new Date().toISOString()
+        paystack_reference: reference,
+        transaction_date: new Date().toISOString()
       };
 
       const paymentId = await createPaymentRecord(paymentRecord);
@@ -73,7 +74,7 @@ const RequestFeaturedDialog = ({
           propertyId,
           propertyTitle,
           paymentId,
-          agentId: user.uid
+          agentId: user.id
         }
       );
 
@@ -84,7 +85,7 @@ const RequestFeaturedDialog = ({
       
       if (isVerified) {
         // Create featured request after successful webhook verification
-        await requestFeaturedProperty(propertyId, user.uid, propertyTitle, paymentId);
+        await requestFeaturedProperty(propertyId, user.id, propertyTitle, paymentId);
         toast.success("Payment verified! Your featured request has been submitted.");
         onOpenChange(false);
         setPaymentStep('request');

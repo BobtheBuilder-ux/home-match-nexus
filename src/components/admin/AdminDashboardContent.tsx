@@ -25,7 +25,7 @@ interface AdminDashboardContentProps {
   featuredRequests: FeaturedRequest[];
   stats: any;
   handlers: {
-    handlePropertyStatusChange: (propertyId: string, status: 'active' | 'draft' | 'rented') => void;
+    handlePropertyStatusChange: (propertyId: string, status: 'available' | 'rented' | 'pending') => void;
     handleDeleteProperty: (propertyId: string) => void;
     handleApproveAgent: (userId: string) => void;
     handleRejectAgent: (userId: string) => void;
@@ -45,7 +45,7 @@ const AdminDashboardContent: React.FC<AdminDashboardContentProps> = ({
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': case 'active': case 'completed': return 'bg-green-100 text-green-800';
+      case 'approved': case 'available': case 'completed': return 'bg-green-100 text-green-800';
       case 'pending': case 'draft': case 'in_progress': return 'bg-yellow-100 text-yellow-800';
       case 'rejected': case 'open': return 'bg-red-100 text-red-800';
       case 'rented': return 'bg-blue-100 text-blue-800';
@@ -54,8 +54,8 @@ const AdminDashboardContent: React.FC<AdminDashboardContentProps> = ({
   };
 
   const getAgentName = (agentId: string) => {
-    const agent = users.find(u => u.userId === agentId && u.role === 'agent');
-    return agent?.displayName || 'N/A';
+    const agent = users.find(u => u.id === agentId && u.role === 'agent');
+    return agent?.display_name || 'N/A';
   };
 
   return (
@@ -95,7 +95,7 @@ const AdminDashboardContent: React.FC<AdminDashboardContentProps> = ({
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-bold">Featured Properties Management</h2>
             <div className="flex gap-2">
-              <Badge variant="secondary">{properties.filter(p => p.isFeatured).length} Featured</Badge>
+              <Badge variant="secondary">{properties.filter(p => p.is_featured).length} Featured</Badge>
               <Badge variant="outline">{stats.pendingFeaturedRequests} Pending Requests</Badge>
             </div>
           </div>

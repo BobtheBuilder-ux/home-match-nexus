@@ -20,7 +20,7 @@ const PropertySidebar = ({ property }: PropertySidebarProps) => {
 
   // Pricing label
   let pricingUnit = "per year";
-  if (property.propertyType === "shortlet") {
+  if (property.property_type === "shortlet") {
     pricingUnit = "per night";
   }
 
@@ -50,7 +50,7 @@ const PropertySidebar = ({ property }: PropertySidebarProps) => {
         </div>
 
         <div className="text-sm text-gray-600">
-          <p>Property Type: <span className="capitalize">{property.propertyType}</span></p>
+          <p>Property Type: <span className="capitalize">{property.property_type}</span></p>
           <p>Status: <span className="capitalize">{property.status}</span></p>
         </div>
       </CardContent>

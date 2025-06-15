@@ -53,17 +53,19 @@ const PropertyForm = () => {
     
     try {
       const propertyData = {
-        ...formData,
+        title: formData.title,
+        description: formData.description,
+        location: `${formData.address}, ${formData.city}, ${formData.state}`,
         price: parseFloat(formData.price) || 0,
         bedrooms: parseInt(formData.bedrooms) || 0,
         bathrooms: parseFloat(formData.bathrooms) || 0,
-        area: parseInt(formData.area) || 0,
-        status: (isDraft ? 'draft' : 'active') as 'active' | 'draft' | 'rented',
+        size_sqft: parseInt(formData.area) || 0,
+        property_type: formData.propertyType,
+        status: (isDraft ? 'pending' : 'available') as 'available' | 'rented' | 'pending',
         images: [], // Placeholder for uploaded image URLs
-        videos: [], // Placeholder for uploaded video URLs
-        agentId: user.uid,
-        dateAdded: new Date().toISOString(),
-        dateUpdated: new Date().toISOString()
+        amenities: [], // Default empty amenities
+        agent_id: user.id,
+        is_featured: false
       };
 
       await addProperty(propertyData);
