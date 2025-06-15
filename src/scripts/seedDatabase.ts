@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { generateProperties } from './utils/propertyGenerator';
 
@@ -47,15 +48,33 @@ export const clearDatabase = async () => {
   try {
     console.log('⚠️  Clearing Supabase database...');
     
-    const tables = ['payments', 'featured_requests', 'applications', 'properties'];
+    // Clear tables using string literals to avoid type issues
+    const { error: paymentsError } = await supabase.from('payments').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (paymentsError) {
+      console.error('Error clearing payments:', paymentsError);
+    } else {
+      console.log('Cleared payments table');
+    }
 
-    for (const tableName of tables) {
-      const { error } = await supabase.from(tableName).delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      if (error) {
-        console.error(`Error clearing ${tableName}:`, error);
-      } else {
-        console.log(`Cleared ${tableName} table`);
-      }
+    const { error: featuredRequestsError } = await supabase.from('featured_requests').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (featuredRequestsError) {
+      console.error('Error clearing featured_requests:', featuredRequestsError);
+    } else {
+      console.log('Cleared featured_requests table');
+    }
+
+    const { error: applicationsError } = await supabase.from('applications').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (applicationsError) {
+      console.error('Error clearing applications:', applicationsError);
+    } else {
+      console.log('Cleared applications table');
+    }
+
+    const { error: propertiesError } = await supabase.from('properties').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (propertiesError) {
+      console.error('Error clearing properties:', propertiesError);
+    } else {
+      console.log('Cleared properties table');
     }
     
     console.log('✅ Supabase database cleared successfully!');

@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { getUserApplications } from "@/services/applicationService";
-import { TenantApplication } from "@/types/application";
+import { getUserApplications, TenantApplication } from "@/services/applicationService";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +37,7 @@ const MyApplications = () => {
         return 'bg-green-100 text-green-800';
       case 'rejected':
         return 'bg-red-100 text-red-800';
-      case 'under_review':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -92,31 +91,35 @@ const MyApplications = () => {
                           Application for Property
                         </CardTitle>
                         <p className="text-neutral-600">
-                          Submitted on {new Date(application.submittedAt).toLocaleDateString()}
+                          Submitted on {new Date(application.application_date).toLocaleDateString()}
                         </p>
                       </div>
                       <Badge className={getStatusColor(application.status)}>
-                        {application.status.replace('_', ' ').toUpperCase()}
+                        {application.status.toUpperCase()}
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <p className="font-medium text-neutral-700">Applicant Name</p>
-                        <p className="text-neutral-900">{application.firstName} {application.lastName}</p>
+                        <p className="font-medium text-neutral-700">Property ID</p>
+                        <p className="text-neutral-900">{application.property_id}</p>
                       </div>
                       <div>
                         <p className="font-medium text-neutral-700">Move-in Date</p>
-                        <p className="text-neutral-900">{new Date(application.moveInDate).toLocaleDateString()}</p>
+                        <p className="text-neutral-900">
+                          {application.move_in_date ? new Date(application.move_in_date).toLocaleDateString() : 'Not specified'}
+                        </p>
                       </div>
                       <div>
                         <p className="font-medium text-neutral-700">Monthly Income</p>
-                        <p className="text-neutral-900">₦{application.monthlyIncome.toLocaleString()}</p>
+                        <p className="text-neutral-900">
+                          {application.monthly_income ? `₦${application.monthly_income.toLocaleString()}` : 'Not specified'}
+                        </p>
                       </div>
                       <div>
-                        <p className="font-medium text-neutral-700">Employment</p>
-                        <p className="text-neutral-900">{application.jobTitle} at {application.employerName}</p>
+                        <p className="font-medium text-neutral-700">Employment Status</p>
+                        <p className="text-neutral-900">{application.employment_status || 'Not specified'}</p>
                       </div>
                     </div>
                     
