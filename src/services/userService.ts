@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface UserProfile {
@@ -80,7 +79,8 @@ export const getAllUsers = async () => {
 };
 
 export const determineUserRole = (email: string): 'customer' | 'agent' | 'admin' => {
-  if (email === 'admin@mecwebcraft.com') {
+  const adminEmails = ['admin@mecwebcraft.com', 'admin@bobbieberry.com'];
+  if (adminEmails.includes(email)) {
     return 'admin';
   }
   
