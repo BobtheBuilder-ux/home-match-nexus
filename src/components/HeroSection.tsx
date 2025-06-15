@@ -4,7 +4,7 @@ import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const HeroSection = () => {
   const [searchData, setSearchData] = useState({
@@ -107,6 +107,14 @@ const HeroSection = () => {
                 </Button>
               </div>
             </div>
+            {/* List Your Property Button */}
+            <div className="flex justify-center mt-4">
+              <Link to="/list-property">
+                <Button variant="outline" size="lg" className="border-primary-600 text-primary-600 hover:bg-primary-50">
+                  List Your Property
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Quick Stats */}
@@ -135,3 +143,4 @@ const HeroSection = () => {
 };
 
 export default HeroSection;
+
