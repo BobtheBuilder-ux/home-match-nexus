@@ -14,7 +14,7 @@ const ForAgents = () => {
   const navigate = useNavigate();
   const handleJoinAsAgent = async () => {
     if (!user) {
-      navigate('/login');
+      navigate('/agent-login');
       return;
     }
     if (userProfile?.role === 'agent') {

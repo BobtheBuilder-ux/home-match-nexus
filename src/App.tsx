@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -10,6 +11,8 @@ import FindRentals from "./pages/FindRentals";
 import ListProperty from "./pages/ListProperty";
 import ForAgents from "./pages/ForAgents";
 import Login from "./pages/Login";
+import AgentLogin from "./pages/AgentLogin";
+import AdminLogin from "./pages/AdminLogin";
 import SignUp from "./pages/SignUp";
 import AgentDashboard from "./pages/AgentDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -36,6 +39,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/agent-login" element={<AgentLogin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/signup" element={<SignUp />} />
 
             {/* All routes BELOW this require authentication */}
