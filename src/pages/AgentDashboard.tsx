@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Trash2, Plus, Home, Edit, Eye } from "lucide-react";
+import { Trash2, Plus, Home, Edit, Eye, Star } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Link } from "react-router-dom";
+import RequestFeaturedDialog from "@/components/RequestFeaturedDialog";
 
 interface Property {
   id: string;
@@ -24,6 +25,8 @@ interface Property {
   bathrooms: number;
   status: 'active' | 'draft' | 'rented';
   dateAdded: string;
+  isFeatured?: boolean;
+  featuredRequestStatus?: 'none' | 'pending' | 'approved' | 'rejected';
 }
 
 const AgentDashboard = () => {
@@ -36,7 +39,9 @@ const AgentDashboard = () => {
       bedrooms: 2,
       bathrooms: 2,
       status: 'active',
-      dateAdded: '2024-06-10'
+      dateAdded: '2024-06-10',
+      isFeatured: false,
+      featuredRequestStatus: 'none'
     },
     {
       id: '2',
@@ -46,7 +51,9 @@ const AgentDashboard = () => {
       bedrooms: 1,
       bathrooms: 1,
       status: 'active',
-      dateAdded: '2024-06-08'
+      dateAdded: '2024-06-08',
+      isFeatured: false,
+      featuredRequestStatus: 'pending'
     },
     {
       id: '3',
@@ -56,14 +63,37 @@ const AgentDashboard = () => {
       bedrooms: 3,
       bathrooms: 3,
       status: 'draft',
-      dateAdded: '2024-06-05'
+      dateAdded: '2024-06-05',
+      isFeatured: true,
+      featuredRequestStatus: 'approved'
     }
   ]);
+
+  const [featuredDialog, setFeaturedDialog] = useState<{
+    open: boolean;
+    propertyId: string;
+    propertyTitle: string;
+    currentStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  }>({
+    open: false,
+    propertyId: '',
+    propertyTitle: '',
+    currentStatus: 'none'
+  });
 
   const handleDeleteProperty = (propertyId: string) => {
     if (window.confirm('Are you sure you want to delete this property?')) {
       setProperties(properties.filter(property => property.id !== propertyId));
     }
+  };
+
+  const handleRequestFeatured = (property: Property) => {
+    setFeaturedDialog({
+      open: true,
+      propertyId: property.id,
+      propertyTitle: property.title,
+      currentStatus: property.featuredRequestStatus || 'none'
+    });
   };
 
   const getStatusBadge = (status: string) => {
@@ -77,6 +107,34 @@ const AgentDashboard = () => {
         return `${baseClasses} bg-blue-100 text-blue-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  };
+
+  const getFeaturedStatusBadge = (status?: string, isFeatured?: boolean) => {
+    if (isFeatured) {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 flex items-center gap-1">
+          <Star className="w-3 h-3" />
+          Featured
+        </span>
+      );
+    }
+
+    switch (status) {
+      case 'pending':
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            Request Pending
+          </span>
+        );
+      case 'rejected':
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            Request Declined
+          </span>
+        );
+      default:
+        return null;
     }
   };
 
@@ -99,7 +157,7 @@ const AgentDashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Properties</CardTitle>
@@ -136,6 +194,18 @@ const AgentDashboard = () => {
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Featured Properties</CardTitle>
+              <Star className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {properties.filter(p => p.isFeatured).length}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Rented Properties</CardTitle>
               <Home className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -161,6 +231,7 @@ const AgentDashboard = () => {
                   <TableHead>Price</TableHead>
                   <TableHead>Bed/Bath</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Featured Status</TableHead>
                   <TableHead>Date Added</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -177,11 +248,23 @@ const AgentDashboard = () => {
                         {property.status}
                       </span>
                     </TableCell>
+                    <TableCell>
+                      {getFeaturedStatusBadge(property.featuredRequestStatus, property.isFeatured)}
+                    </TableCell>
                     <TableCell>{new Date(property.dateAdded).toLocaleDateString()}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm">
                           <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleRequestFeatured(property)}
+                          disabled={property.isFeatured}
+                          className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
+                        >
+                          <Star className="w-4 h-4" />
                         </Button>
                         <Button 
                           variant="outline" 
@@ -214,6 +297,14 @@ const AgentDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      <RequestFeaturedDialog
+        open={featuredDialog.open}
+        onOpenChange={(open) => setFeaturedDialog({ ...featuredDialog, open })}
+        propertyId={featuredDialog.propertyId}
+        propertyTitle={featuredDialog.propertyTitle}
+        currentStatus={featuredDialog.currentStatus}
+      />
 
       <Footer />
     </div>

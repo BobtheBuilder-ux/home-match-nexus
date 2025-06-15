@@ -16,4 +16,7 @@ export interface Property {
   agentId: string;
   dateAdded: string;
   dateUpdated: string;
+  isFeatured?: boolean;
+  featuredRequestStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  featuredRequestDate?: string;
 }

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -15,7 +14,10 @@ import {
   Settings,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  Star,
+  Check,
+  X
 } from 'lucide-react';
 import {
   Table,
@@ -56,6 +58,12 @@ const AdminDashboard = () => {
     { id: '3', tenant: 'Bob Johnson', property: '789 Pine Rd', status: 'rejected', date: '2024-01-13' }
   ];
 
+  const featuredRequests = [
+    { id: '1', property: 'Modern Downtown Apartment', agent: 'Agent Smith', requestDate: '2024-01-15', status: 'pending' },
+    { id: '2', property: 'Luxury Penthouse', agent: 'Agent Johnson', requestDate: '2024-01-14', status: 'approved' },
+    { id: '3', property: 'Cozy Studio', agent: 'Agent Brown', requestDate: '2024-01-13', status: 'rejected' }
+  ];
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'bg-red-100 text-red-800';
@@ -91,7 +99,7 @@ const AdminDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Overview
@@ -99,6 +107,10 @@ const AdminDashboard = () => {
               <TabsTrigger value="properties" className="flex items-center gap-2">
                 <Home className="w-4 h-4" />
                 Properties
+              </TabsTrigger>
+              <TabsTrigger value="featured" className="flex items-center gap-2">
+                <Star className="w-4 h-4" />
+                Featured
               </TabsTrigger>
               <TabsTrigger value="maintenance" className="flex items-center gap-2">
                 <Wrench className="w-4 h-4" />
@@ -261,6 +273,59 @@ const AdminDashboard = () => {
                               <Button variant="ghost" size="sm">
                                 <Trash2 className="w-4 h-4" />
                               </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="featured" className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Featured Property Requests</h2>
+              </div>
+              
+              <Card>
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Property</TableHead>
+                        <TableHead>Agent</TableHead>
+                        <TableHead>Request Date</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {featuredRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">{request.property}</TableCell>
+                          <TableCell>{request.agent}</TableCell>
+                          <TableCell>{new Date(request.requestDate).toLocaleDateString()}</TableCell>
+                          <TableCell>
+                            <Badge className={getStatusColor(request.status)}>
+                              {request.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm">
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              {request.status === 'pending' && (
+                                <>
+                                  <Button variant="ghost" size="sm" className="text-green-600">
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="sm" className="text-red-600">
+                                    <X className="w-4 h-4" />
+                                  </Button>
+                                </>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
