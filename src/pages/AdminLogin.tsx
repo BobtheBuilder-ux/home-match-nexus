@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -168,7 +167,13 @@ const AdminLogin = () => {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-6 text-center space-y-2">
+              <p className="text-neutral-600">
+                Need to create an admin account?{" "}
+                <a href="/admin-signup" className="text-primary-600 hover:text-primary-700 font-medium">
+                  Admin signup
+                </a>
+              </p>
               <p className="text-neutral-600">
                 Not an admin?{" "}
                 <a href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
