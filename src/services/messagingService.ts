@@ -111,10 +111,13 @@ export const getConversations = async (userId: string) => {
       ]
     );
     
-    const conversations: Conversation[] = response.documents.map(doc => ({
-      id: doc.$id,
-      ...doc
-    } as Conversation));
+    const conversations: Conversation[] = response.documents.map(doc => {
+      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
+      return {
+        id: $id,
+        ...data
+      } as Conversation;
+    });
     
     return conversations;
   } catch (error) {
@@ -134,10 +137,13 @@ export const getMessages = async (conversationId: string) => {
       ]
     );
     
-    const messages: Message[] = response.documents.map(doc => ({
-      id: doc.$id,
-      ...doc
-    } as Message));
+    const messages: Message[] = response.documents.map(doc => {
+      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
+      return {
+        id: $id,
+        ...data
+      } as Message;
+    });
     
     return messages;
   } catch (error) {

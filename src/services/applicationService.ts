@@ -29,10 +29,13 @@ export const getApplicationsByProperty = async (propertyId: string) => {
       ]
     );
     
-    const applications: TenantApplication[] = response.documents.map(doc => ({
-      id: doc.$id,
-      ...doc
-    } as TenantApplication));
+    const applications: TenantApplication[] = response.documents.map(doc => {
+      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
+      return {
+        id: $id,
+        ...data
+      } as TenantApplication;
+    });
     
     return applications;
   } catch (error) {
@@ -52,10 +55,13 @@ export const getApplicationsByApplicant = async (applicantId: string) => {
       ]
     );
     
-    const applications: TenantApplication[] = response.documents.map(doc => ({
-      id: doc.$id,
-      ...doc
-    } as TenantApplication));
+    const applications: TenantApplication[] = response.documents.map(doc => {
+      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
+      return {
+        id: $id,
+        ...data
+      } as TenantApplication;
+    });
     
     return applications;
   } catch (error) {

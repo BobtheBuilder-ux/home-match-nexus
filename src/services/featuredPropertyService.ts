@@ -43,10 +43,13 @@ export const getFeaturedRequests = async () => {
       [Query.orderDesc('requestDate')]
     );
     
-    const requests: FeaturedRequest[] = response.documents.map(doc => ({
-      id: doc.$id,
-      ...doc
-    } as FeaturedRequest));
+    const requests: FeaturedRequest[] = response.documents.map(doc => {
+      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
+      return {
+        id: $id,
+        ...data
+      } as FeaturedRequest;
+    });
     
     return requests;
   } catch (error) {

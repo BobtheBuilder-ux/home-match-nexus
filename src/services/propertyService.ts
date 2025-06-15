@@ -32,10 +32,13 @@ export const getProperties = async (filters?: { city?: string; maxPrice?: number
       queries
     );
     
-    const properties: Property[] = response.documents.map(doc => ({
-      id: doc.$id,
-      ...doc
-    } as Property));
+    const properties: Property[] = response.documents.map(doc => {
+      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
+      return {
+        id: $id,
+        ...data
+      } as Property;
+    });
     
     return properties;
   } catch (error) {
@@ -55,10 +58,13 @@ export const getPropertiesByAgent = async (agentId: string) => {
       ]
     );
     
-    const properties: Property[] = response.documents.map(doc => ({
-      id: doc.$id,
-      ...doc
-    } as Property));
+    const properties: Property[] = response.documents.map(doc => {
+      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
+      return {
+        id: $id,
+        ...data
+      } as Property;
+    });
     
     return properties;
   } catch (error) {
