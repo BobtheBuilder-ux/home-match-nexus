@@ -114,14 +114,14 @@ const SearchFilters = ({ filters, onFiltersChange, onClearFilters }: SearchFilte
           <Slider
             value={priceRange}
             onValueChange={handlePriceRangeChange}
-            max={5000}
-            min={500}
-            step={100}
+            max={50000}
+            min={0}
+            step={500}
             className="mb-2"
           />
           <div className="flex justify-between text-xs text-gray-500">
-            <span>$500</span>
-            <span>$5000+</span>
+            <span>$0</span>
+            <span>$50000+</span>
           </div>
         </div>
 
