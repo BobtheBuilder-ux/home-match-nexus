@@ -1,17 +1,14 @@
 
-import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID } from '@/lib/appwrite';
-import { ID, Query } from 'appwrite';
+import { db } from '@/lib/firebase';
+import { collection, doc, addDoc, getDocs, query, where, orderBy, updateDoc, deleteDoc } from 'firebase/firestore';
 import { Property } from '@/types/property';
+
+const PROPERTIES_COLLECTION = 'properties';
 
 export const addProperty = async (propertyData: Omit<Property, 'id'>) => {
   try {
-    const response = await databases.createDocument(
-      DATABASE_ID,
-      PROPERTIES_COLLECTION_ID,
-      ID.unique(),
-      propertyData
-    );
-    return response.$id;
+    const docRef = await addDoc(collection(db, PROPERTIES_COLLECTION), propertyData);
+    return docRef.id;
   } catch (error) {
     console.error('Error adding property:', error);
     throw error;
@@ -20,25 +17,17 @@ export const addProperty = async (propertyData: Omit<Property, 'id'>) => {
 
 export const getProperties = async (filters?: { city?: string; maxPrice?: number; minBedrooms?: number }) => {
   try {
-    const queries = [Query.orderDesc('dateAdded')];
+    let q = query(collection(db, PROPERTIES_COLLECTION), orderBy('dateAdded', 'desc'));
     
     if (filters?.city) {
-      queries.push(Query.equal('city', filters.city));
+      q = query(collection(db, PROPERTIES_COLLECTION), where('city', '==', filters.city), orderBy('dateAdded', 'desc'));
     }
     
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      PROPERTIES_COLLECTION_ID,
-      queries
-    );
-    
-    const properties: Property[] = response.documents.map(doc => {
-      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
-      return {
-        id: $id,
-        ...data
-      } as Property;
-    });
+    const querySnapshot = await getDocs(q);
+    const properties: Property[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Property));
     
     return properties;
   } catch (error) {
@@ -49,22 +38,17 @@ export const getProperties = async (filters?: { city?: string; maxPrice?: number
 
 export const getPropertiesByAgent = async (agentId: string) => {
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      PROPERTIES_COLLECTION_ID,
-      [
-        Query.equal('agentId', agentId),
-        Query.orderDesc('dateAdded')
-      ]
+    const q = query(
+      collection(db, PROPERTIES_COLLECTION), 
+      where('agentId', '==', agentId),
+      orderBy('dateAdded', 'desc')
     );
     
-    const properties: Property[] = response.documents.map(doc => {
-      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
-      return {
-        id: $id,
-        ...data
-      } as Property;
-    });
+    const querySnapshot = await getDocs(q);
+    const properties: Property[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Property));
     
     return properties;
   } catch (error) {
@@ -75,12 +59,8 @@ export const getPropertiesByAgent = async (agentId: string) => {
 
 export const updateProperty = async (propertyId: string, updates: Partial<Property>) => {
   try {
-    await databases.updateDocument(
-      DATABASE_ID,
-      PROPERTIES_COLLECTION_ID,
-      propertyId,
-      { ...updates, dateUpdated: new Date().toISOString() }
-    );
+    const propertyRef = doc(db, PROPERTIES_COLLECTION, propertyId);
+    await updateDoc(propertyRef, { ...updates, dateUpdated: new Date().toISOString() });
   } catch (error) {
     console.error('Error updating property:', error);
     throw error;
@@ -89,11 +69,8 @@ export const updateProperty = async (propertyId: string, updates: Partial<Proper
 
 export const deleteProperty = async (propertyId: string) => {
   try {
-    await databases.deleteDocument(
-      DATABASE_ID,
-      PROPERTIES_COLLECTION_ID,
-      propertyId
-    );
+    const propertyRef = doc(db, PROPERTIES_COLLECTION, propertyId);
+    await deleteDoc(propertyRef);
   } catch (error) {
     console.error('Error deleting property:', error);
     throw error;

@@ -1,9 +1,9 @@
 
-import { databases, DATABASE_ID } from '@/lib/appwrite';
-import { ID } from 'appwrite';
+import { db } from '@/lib/firebase';
+import { collection, doc, addDoc, getDocs, query, where, updateDoc, getDoc } from 'firebase/firestore';
 
 export interface UserProfile {
-  $id?: string;
+  id?: string;
   userId: string;
   email: string;
   displayName: string;
@@ -13,17 +13,12 @@ export interface UserProfile {
   isApproved?: boolean;
 }
 
-const USERS_COLLECTION_ID = 'users';
+const USERS_COLLECTION = 'users';
 
-export const createUserProfile = async (userProfile: Omit<UserProfile, '$id'>) => {
+export const createUserProfile = async (userProfile: Omit<UserProfile, 'id'>) => {
   try {
-    const response = await databases.createDocument(
-      DATABASE_ID,
-      USERS_COLLECTION_ID,
-      ID.unique(),
-      userProfile
-    );
-    return response as unknown as UserProfile;
+    const docRef = await addDoc(collection(db, USERS_COLLECTION), userProfile);
+    return { id: docRef.id, ...userProfile } as UserProfile;
   } catch (error) {
     console.error('Error creating user profile:', error);
     throw error;
@@ -32,16 +27,12 @@ export const createUserProfile = async (userProfile: Omit<UserProfile, '$id'>) =
 
 export const getUserProfile = async (userId: string) => {
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      USERS_COLLECTION_ID,
-      [
-        `userId = "${userId}"`
-      ]
-    );
+    const q = query(collection(db, USERS_COLLECTION), where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
     
-    if (response.documents.length > 0) {
-      return response.documents[0] as unknown as UserProfile;
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return { id: doc.id, ...doc.data() } as UserProfile;
     }
     
     return null;
@@ -54,14 +45,10 @@ export const getUserProfile = async (userId: string) => {
 export const updateUserRole = async (userId: string, role: 'customer' | 'agent' | 'admin') => {
   try {
     const userProfile = await getUserProfile(userId);
-    if (userProfile) {
-      const response = await databases.updateDocument(
-        DATABASE_ID,
-        USERS_COLLECTION_ID,
-        userProfile.$id!,
-        { role }
-      );
-      return response as unknown as UserProfile;
+    if (userProfile && userProfile.id) {
+      const userRef = doc(db, USERS_COLLECTION, userProfile.id);
+      await updateDoc(userRef, { role });
+      return { ...userProfile, role } as UserProfile;
     }
     throw new Error('User profile not found');
   } catch (error) {

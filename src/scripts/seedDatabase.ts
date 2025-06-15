@@ -1,35 +1,24 @@
 
-import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID, FEATURED_REQUESTS_COLLECTION_ID, APPLICATIONS_COLLECTION_ID, MESSAGES_COLLECTION_ID, CONVERSATIONS_COLLECTION_ID } from '@/lib/appwrite';
-import { seedProperties } from './services/propertySeeder';
-import { seedFeaturedRequests } from './services/featuredRequestSeeder';
-import { seedApplications } from './services/applicationSeeder';
-import { seedConversations, seedMessages } from './services/conversationSeeder';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { generateProperties } from './utils/propertyGenerator';
 
 export const seedDatabase = async () => {
   try {
-    console.log('Starting database seeding...');
+    console.log('Starting database seeding with Firebase...');
     
     // 1. Create Properties
-    const createdProperties = await seedProperties();
+    const sampleProperties = generateProperties(55);
+    const createdProperties = [];
+    
+    for (const property of sampleProperties) {
+      const docRef = await addDoc(collection(db, 'properties'), property);
+      createdProperties.push({ id: docRef.id, ...property });
+      console.log(`Created property: ${property.title} - ₦${property.price.toLocaleString()}`);
+    }
 
-    // 2. Create Featured Requests
-    const featuredRequests = await seedFeaturedRequests(createdProperties);
-
-    // 3. Create Applications
-    const applications = await seedApplications(createdProperties);
-
-    // 4. Create Conversations
-    const createdConversations = await seedConversations(createdProperties);
-
-    // 5. Create Messages
-    const messages = await seedMessages(createdConversations);
-
-    console.log('✅ Database seeding completed successfully!');
+    console.log('✅ Database seeding completed successfully with Firebase!');
     console.log(`Created ${createdProperties.length} properties in Abuja, Nigeria`);
-    console.log(`Created ${featuredRequests.length} featured requests`);
-    console.log(`Created ${applications.length} applications`);
-    console.log(`Created ${createdConversations.length} conversations`);
-    console.log(`Created ${messages.length} messages`);
     console.log('💰 All prices are in Nigerian Naira (₦)');
     
   } catch (error) {
@@ -41,27 +30,20 @@ export const seedDatabase = async () => {
 // Helper function to clear all data (use with caution!)
 export const clearDatabase = async () => {
   try {
-    console.log('⚠️  Clearing database...');
+    console.log('⚠️  Clearing Firebase database...');
     
-    const collections = [
-      { id: MESSAGES_COLLECTION_ID, name: 'Messages' },
-      { id: CONVERSATIONS_COLLECTION_ID, name: 'Conversations' },
-      { id: APPLICATIONS_COLLECTION_ID, name: 'Applications' },
-      { id: FEATURED_REQUESTS_COLLECTION_ID, name: 'Featured Requests' },
-      { id: PROPERTIES_COLLECTION_ID, name: 'Properties' }
-    ];
+    const collections = ['properties', 'users', 'applications', 'conversations', 'messages', 'featuredRequests'];
 
-    for (const collection of collections) {
-      const response = await databases.listDocuments(DATABASE_ID, collection.id);
-      for (const doc of response.documents) {
-        await databases.deleteDocument(DATABASE_ID, collection.id, doc.$id);
-      }
-      console.log(`Cleared ${response.documents.length} documents from ${collection.name}`);
+    for (const collectionName of collections) {
+      const querySnapshot = await getDocs(collection(db, collectionName));
+      const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+      await Promise.all(deletePromises);
+      console.log(`Cleared ${querySnapshot.docs.length} documents from ${collectionName}`);
     }
     
-    console.log('✅ Database cleared successfully!');
+    console.log('✅ Firebase database cleared successfully!');
   } catch (error) {
-    console.error('❌ Error clearing database:', error);
+    console.error('❌ Error clearing Firebase database:', error);
     throw error;
   }
 };

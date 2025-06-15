@@ -1,5 +1,6 @@
-import { messaging, databases, DATABASE_ID, MESSAGES_COLLECTION_ID, CONVERSATIONS_COLLECTION_ID } from '@/lib/appwrite';
-import { ID, Query } from 'appwrite';
+
+import { db } from '@/lib/firebase';
+import { collection, doc, addDoc, getDocs, query, where, orderBy, updateDoc, or } from 'firebase/firestore';
 
 export interface Message {
   id?: string;
@@ -22,6 +23,9 @@ export interface Conversation {
   unreadCount: number;
 }
 
+const CONVERSATIONS_COLLECTION = 'conversations';
+const MESSAGES_COLLECTION = 'messages';
+
 export const createConversation = async (
   propertyId: string,
   agentId: string,
@@ -39,13 +43,8 @@ export const createConversation = async (
       unreadCount: 0
     };
     
-    const response = await databases.createDocument(
-      DATABASE_ID,
-      CONVERSATIONS_COLLECTION_ID,
-      ID.unique(),
-      conversationData
-    );
-    return response.$id;
+    const docRef = await addDoc(collection(db, CONVERSATIONS_COLLECTION), conversationData);
+    return docRef.id;
   } catch (error) {
     console.error('Error creating conversation:', error);
     throw error;
@@ -68,25 +67,16 @@ export const sendMessage = async (
       read: false
     };
     
-    const response = await databases.createDocument(
-      DATABASE_ID,
-      MESSAGES_COLLECTION_ID,
-      ID.unique(),
-      messageData
-    );
+    const docRef = await addDoc(collection(db, MESSAGES_COLLECTION), messageData);
     
     // Update conversation with last message
-    await databases.updateDocument(
-      DATABASE_ID,
-      CONVERSATIONS_COLLECTION_ID,
-      conversationId,
-      {
-        lastMessage: content,
-        lastMessageTime: new Date().toISOString()
-      }
-    );
+    const conversationRef = doc(db, CONVERSATIONS_COLLECTION, conversationId);
+    await updateDoc(conversationRef, {
+      lastMessage: content,
+      lastMessageTime: new Date().toISOString()
+    });
     
-    return response.$id;
+    return docRef.id;
   } catch (error) {
     console.error('Error sending message:', error);
     throw error;
@@ -95,25 +85,17 @@ export const sendMessage = async (
 
 export const getConversations = async (userId: string) => {
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      CONVERSATIONS_COLLECTION_ID,
-      [
-        Query.or([
-          Query.equal('agentId', userId),
-          Query.equal('tenantId', userId)
-        ]),
-        Query.orderDesc('lastMessageTime')
-      ]
+    const q = query(
+      collection(db, CONVERSATIONS_COLLECTION),
+      or(where('agentId', '==', userId), where('tenantId', '==', userId)),
+      orderBy('lastMessageTime', 'desc')
     );
     
-    const conversations: Conversation[] = response.documents.map(doc => {
-      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
-      return {
-        id: $id,
-        ...data
-      } as Conversation;
-    });
+    const querySnapshot = await getDocs(q);
+    const conversations: Conversation[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Conversation));
     
     return conversations;
   } catch (error) {
@@ -124,22 +106,17 @@ export const getConversations = async (userId: string) => {
 
 export const getMessages = async (conversationId: string) => {
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      MESSAGES_COLLECTION_ID,
-      [
-        Query.equal('conversationId', conversationId),
-        Query.orderAsc('timestamp')
-      ]
+    const q = query(
+      collection(db, MESSAGES_COLLECTION),
+      where('conversationId', '==', conversationId),
+      orderBy('timestamp', 'asc')
     );
     
-    const messages: Message[] = response.documents.map(doc => {
-      const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = doc;
-      return {
-        id: $id,
-        ...data
-      } as Message;
-    });
+    const querySnapshot = await getDocs(q);
+    const messages: Message[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    } as Message));
     
     return messages;
   } catch (error) {
@@ -150,24 +127,16 @@ export const getMessages = async (conversationId: string) => {
 
 export const markMessagesAsRead = async (conversationId: string, userId: string) => {
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      MESSAGES_COLLECTION_ID,
-      [
-        Query.equal('conversationId', conversationId),
-        Query.notEqual('senderId', userId),
-        Query.equal('read', false)
-      ]
+    const q = query(
+      collection(db, MESSAGES_COLLECTION),
+      where('conversationId', '==', conversationId),
+      where('read', '==', false)
     );
     
-    const updatePromises = response.documents.map(doc =>
-      databases.updateDocument(
-        DATABASE_ID,
-        MESSAGES_COLLECTION_ID,
-        doc.$id,
-        { read: true }
-      )
-    );
+    const querySnapshot = await getDocs(q);
+    const updatePromises = querySnapshot.docs
+      .filter(doc => doc.data().senderId !== userId)
+      .map(doc => updateDoc(doc.ref, { read: true }));
     
     await Promise.all(updatePromises);
   } catch (error) {

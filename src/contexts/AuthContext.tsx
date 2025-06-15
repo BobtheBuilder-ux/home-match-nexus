@@ -1,9 +1,9 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { UserProfile, createUserProfile, getUserProfile, determineUserRole } from '@/services/userService';
-import { databases, DATABASE_ID } from '@/lib/appwrite';
+import { doc, updateDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -89,12 +89,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         isApproved: false // Agents need admin approval
       };
 
-      await databases.updateDocument(
-        DATABASE_ID,
-        'users',
-        userProfile.$id!,
-        { role: 'agent', isApproved: false }
-      );
+      if (userProfile.id) {
+        const userRef = doc(db, 'users', userProfile.id);
+        await updateDoc(userRef, { role: 'agent', isApproved: false });
+      }
 
       setUserProfile(updatedProfile);
     } catch (error) {
