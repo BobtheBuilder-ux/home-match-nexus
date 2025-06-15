@@ -15,8 +15,8 @@ const FindRentals = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState({
     location: "",
-    type: "",
-    bedrooms: "",
+    type: "any",
+    bedrooms: "any",
     priceMin: 500,
     priceMax: 5000,
     amenities: [] as string[],
@@ -26,8 +26,8 @@ const FindRentals = () => {
   // Initialize filters from URL parameters
   useEffect(() => {
     const location = searchParams.get('location') || searchParams.get('search') || "";
-    const type = searchParams.get('type') || "";
-    const bedrooms = searchParams.get('bedrooms') || "";
+    const type = searchParams.get('type') || "any";
+    const bedrooms = searchParams.get('bedrooms') || "any";
     
     setSearchQuery(location);
     setFilters(prev => ({ 
@@ -75,8 +75,8 @@ const FindRentals = () => {
   const handleClearFilters = () => {
     setFilters({
       location: "",
-      type: "",
-      bedrooms: "",
+      type: "any",
+      bedrooms: "any",
       priceMin: 500,
       priceMax: 5000,
       amenities: [],

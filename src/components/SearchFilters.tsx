@@ -79,7 +79,7 @@ const SearchFilters = ({ filters, onFiltersChange, onClearFilters }: SearchFilte
               <SelectValue placeholder="Any Type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any Type</SelectItem>
+              <SelectItem value="any">Any Type</SelectItem>
               <SelectItem value="apartment">Apartment</SelectItem>
               <SelectItem value="house">House</SelectItem>
               <SelectItem value="studio">Studio</SelectItem>
@@ -96,7 +96,7 @@ const SearchFilters = ({ filters, onFiltersChange, onClearFilters }: SearchFilte
               <SelectValue placeholder="Any" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="any">Any</SelectItem>
               <SelectItem value="studio">Studio</SelectItem>
               <SelectItem value="1">1 Bedroom</SelectItem>
               <SelectItem value="2">2 Bedrooms</SelectItem>
