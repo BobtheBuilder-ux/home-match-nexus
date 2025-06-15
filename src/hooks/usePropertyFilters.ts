@@ -18,12 +18,19 @@ export const usePropertyFilters = (properties: Property[], filters: Filters) => 
     
     // Filter properties
     const filtered = properties.filter(property => {
-      // Location filter
+      // Location filter - more flexible matching
       if (filters.location && filters.location.trim()) {
+        const searchTerm = filters.location.toLowerCase().trim();
         const locationMatch = 
-          property.city.toLowerCase().includes(filters.location.toLowerCase()) ||
-          property.state.toLowerCase().includes(filters.location.toLowerCase()) ||
-          property.address.toLowerCase().includes(filters.location.toLowerCase());
+          property.city.toLowerCase().includes(searchTerm) ||
+          property.state.toLowerCase().includes(searchTerm) ||
+          property.address.toLowerCase().includes(searchTerm) ||
+          // Also check for partial matches and common variations
+          searchTerm.includes(property.city.toLowerCase()) ||
+          searchTerm.includes(property.state.toLowerCase());
+        
+        console.log(`Checking location "${searchTerm}" against property: ${property.city}, ${property.state}, ${property.address}. Match: ${locationMatch}`);
+        
         if (!locationMatch) return false;
       }
       
