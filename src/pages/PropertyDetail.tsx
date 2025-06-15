@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Bed, Bath, Square, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PropertyMap from "@/components/PropertyMap";
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -116,6 +117,11 @@ const PropertyDetail = () => {
                   <div className="mb-6">
                     <h2 className="text-xl font-semibold mb-3">Description</h2>
                     <p className="text-gray-700 leading-relaxed">{property.description}</p>
+                  </div>
+
+                  <div className="mb-6">
+                    <h2 className="text-xl font-semibold mb-3">Location</h2>
+                    <PropertyMap address={`${property.address}, ${property.city}, ${property.state}`} />
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-gray-500">
