@@ -1,4 +1,3 @@
-
 import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID, FEATURED_REQUESTS_COLLECTION_ID, APPLICATIONS_COLLECTION_ID, MESSAGES_COLLECTION_ID, CONVERSATIONS_COLLECTION_ID } from '@/lib/appwrite';
 import { ID } from 'appwrite';
 
@@ -6,7 +5,9 @@ import { ID } from 'appwrite';
 const SAMPLE_AGENT_IDS = [
   'agent_001',
   'agent_002', 
-  'agent_003'
+  'agent_003',
+  'agent_004',
+  'agent_005'
 ];
 
 const SAMPLE_TENANT_IDS = [
@@ -17,121 +18,103 @@ const SAMPLE_TENANT_IDS = [
   'tenant_005'
 ];
 
-const sampleProperties = [
-  {
-    title: "Modern Downtown Apartment with City Views",
-    description: "Stunning 2-bedroom apartment in the heart of downtown with panoramic city views, modern amenities, and walking distance to restaurants and shopping.",
-    address: "123 Main St, Apt 15A",
-    city: "Seattle",
-    state: "WA",
-    price: 2800,
-    bedrooms: 2,
-    bathrooms: 2,
-    area: 1200,
-    propertyType: "apartment" as const,
-    status: "active" as const,
-    images: [
-      "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop"
-    ],
-    agentId: SAMPLE_AGENT_IDS[0],
-    dateAdded: "2024-01-15T10:00:00Z",
-    dateUpdated: "2024-01-15T10:00:00Z",
-    isFeatured: true,
-    featuredRequestStatus: "approved" as const
-  },
-  {
-    title: "Charming Victorian House in Historic District",
-    description: "Beautiful 3-bedroom Victorian house with original hardwood floors, updated kitchen, and private garden in historic neighborhood.",
-    address: "456 Oak Avenue",
-    city: "Denver",
-    state: "CO", 
-    price: 3200,
-    bedrooms: 3,
-    bathrooms: 2.5,
-    area: 1800,
-    propertyType: "house" as const,
-    status: "active" as const,
-    images: [
-      "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&h=600&fit=crop"
-    ],
-    agentId: SAMPLE_AGENT_IDS[1],
-    dateAdded: "2024-01-20T14:30:00Z",
-    dateUpdated: "2024-01-20T14:30:00Z",
-    isFeatured: false,
-    featuredRequestStatus: "none" as const
-  },
-  {
-    title: "Luxury Studio with Premium Amenities",
-    description: "High-end studio apartment with premium finishes, gym access, rooftop terrace, and concierge service in prime location.",
-    address: "789 Pine Street, Unit 25B",
-    city: "San Francisco",
-    state: "CA",
-    price: 2400,
-    bedrooms: 0,
-    bathrooms: 1,
-    area: 600,
-    propertyType: "studio" as const,
-    status: "active" as const,
-    images: [
-      "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&h=600&fit=crop"
-    ],
-    agentId: SAMPLE_AGENT_IDS[2],
-    dateAdded: "2024-02-01T09:15:00Z",
-    dateUpdated: "2024-02-01T09:15:00Z",
-    isFeatured: true,
-    featuredRequestStatus: "approved" as const
-  },
-  {
-    title: "Spacious Family Home with Backyard",
-    description: "Perfect family home with 4 bedrooms, large backyard, garage, and located in excellent school district.",
-    address: "321 Elm Drive",
-    city: "Austin",
-    state: "TX",
-    price: 2100,
-    bedrooms: 4,
-    bathrooms: 3,
-    area: 2200,
-    propertyType: "house" as const,
-    status: "active" as const,
-    images: [
-      "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&h=600&fit=crop"
-    ],
-    agentId: SAMPLE_AGENT_IDS[0],
-    dateAdded: "2024-02-05T16:45:00Z",
-    dateUpdated: "2024-02-05T16:45:00Z",
-    isFeatured: false,
-    featuredRequestStatus: "pending" as const
-  },
-  {
-    title: "Cozy Shared Living Space",
-    description: "Affordable shared living space with private bedroom, shared kitchen and living area, perfect for young professionals.",
-    address: "654 Maple Lane, Room 3",
-    city: "Portland",
-    state: "OR",
-    price: 800,
-    bedrooms: 1,
-    bathrooms: 1,
-    area: 400,
-    propertyType: "shared" as const,
-    status: "draft" as const,
-    images: [],
-    agentId: SAMPLE_AGENT_IDS[1],
-    dateAdded: "2024-02-10T11:20:00Z",
-    dateUpdated: "2024-02-10T11:20:00Z",
-    isFeatured: false,
-    featuredRequestStatus: "none" as const
-  }
+// Abuja neighborhoods and areas
+const ABUJA_AREAS = [
+  "Maitama", "Asokoro", "Wuse 2", "Garki", "Utako", "Jahi", "Life Camp", 
+  "Gwarinpa", "Kubwa", "Lokogoma", "Kado", "Gudu", "Wuye", "Katampe", "Durumi",
+  "Area 1", "Area 2", "Area 3", "Area 8", "Area 10", "Area 11", "Central Business District",
+  "Lugbe", "Airport Road", "Galadimawa", "Kaura", "Dakwo", "Mbora", "Karmo"
 ];
+
+// Street names and property types for variety
+const STREET_NAMES = [
+  "Yakubu Gowon Street", "Shehu Shagari Way", "Nnamdi Azikiwe Street", "Herbert Macaulay Way",
+  "Tafawa Balewa Street", "Ahmadu Bello Way", "Independence Avenue", "Constitution Avenue",
+  "Diplomatic Drive", "Lake Chad Crescent", "Niger River Street", "Benue Close",
+  "Victoria Falls Drive", "Sahara Street", "Atlas Mountains Avenue", "Kilimanjaro Road"
+];
+
+const PROPERTY_DESCRIPTIONS = [
+  "Luxurious apartment with modern amenities and excellent security",
+  "Spacious family home with beautiful garden and parking space",
+  "Contemporary design with premium finishes and great location",
+  "Elegant property in a serene environment with 24/7 security",
+  "Modern living space with all necessary amenities included",
+  "Beautiful home perfect for families with children",
+  "Stylish apartment with panoramic city views",
+  "Comfortable living space in a well-developed area",
+  "Premium property with excellent infrastructure and facilities",
+  "Cozy home with modern kitchen and spacious bedrooms"
+];
+
+const generateProperties = () => {
+  const properties = [];
+  
+  for (let i = 0; i < 55; i++) {
+    const area = ABUJA_AREAS[Math.floor(Math.random() * ABUJA_AREAS.length)];
+    const street = STREET_NAMES[Math.floor(Math.random() * STREET_NAMES.length)];
+    const description = PROPERTY_DESCRIPTIONS[Math.floor(Math.random() * PROPERTY_DESCRIPTIONS.length)];
+    const bedrooms = Math.floor(Math.random() * 5) + 1; // 1-5 bedrooms
+    const bathrooms = Math.floor(Math.random() * 3) + 1; // 1-3 bathrooms
+    const propertyTypes = ['apartment', 'house', 'studio', 'shared'];
+    const propertyType = propertyTypes[Math.floor(Math.random() * propertyTypes.length)];
+    
+    // Price ranges in Naira based on area and property type
+    let basePrice;
+    if (['Maitama', 'Asokoro', 'Wuse 2'].includes(area)) {
+      basePrice = Math.floor(Math.random() * 2000000) + 1500000; // ₦1.5M - ₦3.5M
+    } else if (['Garki', 'Utako', 'Jahi', 'Life Camp'].includes(area)) {
+      basePrice = Math.floor(Math.random() * 1500000) + 800000; // ₦800K - ₦2.3M
+    } else {
+      basePrice = Math.floor(Math.random() * 1000000) + 400000; // ₦400K - ₦1.4M
+    }
+    
+    // Adjust price based on property type and bedrooms
+    let finalPrice = basePrice;
+    if (propertyType === 'studio') finalPrice *= 0.6;
+    if (propertyType === 'shared') finalPrice *= 0.4;
+    finalPrice += (bedrooms - 1) * 200000;
+    
+    const property = {
+      title: `${bedrooms}-Bedroom ${propertyType.charAt(0).toUpperCase() + propertyType.slice(1)} in ${area}`,
+      description: `${description} Located in the prestigious ${area} area of Abuja with easy access to major roads and amenities.`,
+      address: `${Math.floor(Math.random() * 99) + 1} ${street}`,
+      city: "Abuja",
+      state: "FCT",
+      price: Math.floor(finalPrice),
+      bedrooms: propertyType === 'studio' ? 0 : bedrooms,
+      bathrooms: bathrooms,
+      area: Math.floor(Math.random() * 1500) + 500, // 500-2000 sqft
+      propertyType: propertyType as 'apartment' | 'house' | 'studio' | 'shared',
+      status: Math.random() > 0.1 ? 'active' as const : 'draft' as const, // 90% active
+      images: [
+        "https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&h=600&fit=crop",
+        "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=800&h=600&fit=crop"
+      ].slice(0, Math.floor(Math.random() * 3) + 1), // 1-3 images per property
+      agentId: SAMPLE_AGENT_IDS[Math.floor(Math.random() * SAMPLE_AGENT_IDS.length)],
+      dateAdded: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString(), // Random date within last 30 days
+      dateUpdated: new Date().toISOString(),
+      isFeatured: Math.random() > 0.8, // 20% featured
+      featuredRequestStatus: Math.random() > 0.7 ? 'approved' as const : 'none' as const
+    };
+    
+    properties.push(property);
+  }
+  
+  return properties;
+};
 
 export const seedDatabase = async () => {
   try {
     console.log('Starting database seeding...');
     
     // 1. Create Properties
-    console.log('Creating properties...');
+    console.log('Creating 55+ properties in Abuja, Nigeria...');
+    const sampleProperties = generateProperties();
     const createdProperties = [];
+    
     for (const property of sampleProperties) {
       const response = await databases.createDocument(
         DATABASE_ID,
@@ -140,28 +123,20 @@ export const seedDatabase = async () => {
         property
       );
       createdProperties.push(response);
-      console.log(`Created property: ${property.title}`);
+      console.log(`Created property: ${property.title} - ₦${property.price.toLocaleString()}`);
     }
 
     // 2. Create Featured Requests
     console.log('Creating featured requests...');
-    const featuredRequests = [
-      {
-        propertyId: createdProperties[0].$id,
-        agentId: SAMPLE_AGENT_IDS[0],
-        propertyTitle: createdProperties[0].title,
-        requestDate: "2024-01-14T08:00:00Z",
-        status: "approved" as const,
-        adminNotes: "Excellent property with great photos and description."
-      },
-      {
-        propertyId: createdProperties[3].$id,
-        agentId: SAMPLE_AGENT_IDS[0],
-        propertyTitle: createdProperties[3].title,
-        requestDate: "2024-02-04T10:30:00Z",
-        status: "pending" as const
-      }
-    ];
+    const featuredProperties = createdProperties.filter(p => p.isFeatured);
+    const featuredRequests = featuredProperties.slice(0, 10).map(property => ({
+      propertyId: property.$id,
+      agentId: property.agentId,
+      propertyTitle: property.title,
+      requestDate: new Date(Date.now() - Math.floor(Math.random() * 15) * 24 * 60 * 60 * 1000).toISOString(),
+      status: "approved" as const,
+      adminNotes: "Quality property in premium Abuja location."
+    }));
 
     for (const request of featuredRequests) {
       await databases.createDocument(
@@ -175,66 +150,34 @@ export const seedDatabase = async () => {
 
     // 3. Create Applications
     console.log('Creating applications...');
-    const applications = [
-      {
-        propertyId: createdProperties[0].$id,
-        applicantId: SAMPLE_TENANT_IDS[0],
-        status: "submitted" as const,
-        submittedAt: "2024-01-16T14:20:00Z",
-        firstName: "John",
-        lastName: "Smith",
-        email: "john.smith@email.com",
-        phone: "+1-555-0101",
-        dateOfBirth: "1990-05-15",
-        employerName: "Tech Corp Inc",
-        jobTitle: "Software Engineer",
-        monthlyIncome: 8500,
-        employmentDuration: "3 years",
-        currentAddress: "789 Current St, Seattle, WA",
-        moveInDate: "2024-02-01",
-        reasonForMoving: "Relocating for work",
-        references: [
-          {
-            name: "Jane Doe",
-            relationship: "Previous Landlord", 
-            phone: "+1-555-0102",
-            email: "jane.doe@email.com"
-          }
-        ],
-        pets: false,
-        additionalComments: "Looking forward to living in downtown area."
-      },
-      {
-        propertyId: createdProperties[1].$id,
-        applicantId: SAMPLE_TENANT_IDS[1],
-        status: "under_review" as const,
-        submittedAt: "2024-01-22T09:45:00Z",
-        reviewedAt: "2024-01-23T10:15:00Z",
-        firstName: "Sarah",
-        lastName: "Johnson",
-        email: "sarah.johnson@email.com",
-        phone: "+1-555-0201",
-        dateOfBirth: "1988-09-22",
-        employerName: "Design Studio LLC",
-        jobTitle: "Graphic Designer",
-        monthlyIncome: 6200,
-        employmentDuration: "5 years",
-        currentAddress: "456 Old Address, Denver, CO",
-        moveInDate: "2024-03-01",
-        reasonForMoving: "Want more space",
-        references: [
-          {
-            name: "Mike Wilson",
-            relationship: "Employer",
-            phone: "+1-555-0202", 
-            email: "mike.wilson@designstudio.com"
-          }
-        ],
-        pets: true,
-        petDetails: "One small dog, well-trained",
-        additionalComments: "Love the historic character of the house."
-      }
-    ];
+    const applications = createdProperties.slice(0, 15).map((property, index) => ({
+      propertyId: property.$id,
+      applicantId: SAMPLE_TENANT_IDS[index % SAMPLE_TENANT_IDS.length],
+      status: ["submitted", "under_review", "approved"][Math.floor(Math.random() * 3)] as "submitted" | "under_review" | "approved",
+      submittedAt: new Date(Date.now() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000).toISOString(),
+      firstName: ["Adamu", "Fatima", "Ibrahim", "Aisha", "Mohammed", "Hauwa", "Usman", "Zainab"][index % 8],
+      lastName: ["Bello", "Sani", "Garba", "Aliyu", "Musa", "Yakubu", "Shehu", "Umar"][index % 8],
+      email: `user${index + 1}@email.com`,
+      phone: `+234-${Math.floor(Math.random() * 900000000) + 700000000}`,
+      dateOfBirth: `${1980 + Math.floor(Math.random() * 25)}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
+      employerName: ["Federal Ministry", "Abuja Tech Hub", "Nigerian National Petroleum Corporation", "Central Bank of Nigeria", "Dangote Group"][Math.floor(Math.random() * 5)],
+      jobTitle: ["Software Engineer", "Civil Servant", "Financial Analyst", "Project Manager", "Business Analyst"][Math.floor(Math.random() * 5)],
+      monthlyIncome: Math.floor(Math.random() * 1000000) + 300000, // ₦300K - ₦1.3M
+      employmentDuration: `${Math.floor(Math.random() * 8) + 1} years`,
+      currentAddress: `${Math.floor(Math.random() * 99) + 1} Current Street, ${ABUJA_AREAS[Math.floor(Math.random() * ABUJA_AREAS.length)]}, Abuja`,
+      moveInDate: new Date(Date.now() + Math.floor(Math.random() * 60) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      reasonForMoving: ["Job relocation", "Family expansion", "Better location", "Upgrade lifestyle"][Math.floor(Math.random() * 4)],
+      references: [
+        {
+          name: ["Musa Ibrahim", "Fatima Ahmed", "Yusuf Mohammed"][Math.floor(Math.random() * 3)],
+          relationship: ["Previous Landlord", "Employer", "Family Friend"][Math.floor(Math.random() * 3)],
+          phone: `+234-${Math.floor(Math.random() * 900000000) + 700000000}`,
+          email: `reference${index}@email.com`
+        }
+      ],
+      pets: Math.random() > 0.7,
+      additionalComments: "Looking forward to renting in Abuja."
+    }));
 
     for (const application of applications) {
       await databases.createDocument(
@@ -248,26 +191,24 @@ export const seedDatabase = async () => {
 
     // 4. Create Conversations
     console.log('Creating conversations...');
-    const conversations = [
-      {
-        propertyId: createdProperties[0].$id,
-        agentId: SAMPLE_AGENT_IDS[0],
-        tenantId: SAMPLE_TENANT_IDS[0],
-        propertyTitle: createdProperties[0].title,
-        lastMessage: "Is the apartment still available?",
-        lastMessageTime: "2024-01-16T10:30:00Z",
-        unreadCount: 1
-      },
-      {
-        propertyId: createdProperties[1].$id,
-        agentId: SAMPLE_AGENT_IDS[1],
-        tenantId: SAMPLE_TENANT_IDS[1],
-        propertyTitle: createdProperties[1].title,
-        lastMessage: "Thank you for the quick response!",
-        lastMessageTime: "2024-01-22T15:45:00Z",
-        unreadCount: 0
-      }
-    ];
+    const conversations = createdProperties.slice(0, 8).map((property, index) => ({
+      propertyId: property.$id,
+      agentId: property.agentId,
+      tenantId: SAMPLE_TENANT_IDS[index % SAMPLE_TENANT_IDS.length],
+      propertyTitle: property.title,
+      lastMessage: [
+        "Is this property still available?",
+        "Can I schedule a viewing?", 
+        "What's included in the rent?",
+        "Is the area safe and secure?",
+        "Are utilities included?",
+        "When can I move in?",
+        "Can I negotiate the price?",
+        "Is parking available?"
+      ][index % 8],
+      lastMessageTime: new Date(Date.now() - Math.floor(Math.random() * 5) * 24 * 60 * 60 * 1000).toISOString(),
+      unreadCount: Math.floor(Math.random() * 3)
+    }));
 
     const createdConversations = [];
     for (const conversation of conversations) {
@@ -283,58 +224,23 @@ export const seedDatabase = async () => {
 
     // 5. Create Messages
     console.log('Creating messages...');
-    const messages = [
-      // Conversation 1 messages
-      {
-        conversationId: createdConversations[0].$id,
-        senderId: SAMPLE_TENANT_IDS[0],
-        senderName: "John Smith",
-        content: "Hi, I'm interested in the downtown apartment. Is it still available?",
-        timestamp: "2024-01-16T10:00:00Z",
-        read: true
-      },
-      {
-        conversationId: createdConversations[0].$id,
-        senderId: SAMPLE_AGENT_IDS[0],
-        senderName: "Agent Mike",
-        content: "Yes, it's still available! Would you like to schedule a viewing?",
-        timestamp: "2024-01-16T10:15:00Z",
-        read: true
-      },
-      {
-        conversationId: createdConversations[0].$id,
-        senderId: SAMPLE_TENANT_IDS[0],
-        senderName: "John Smith", 
-        content: "Is the apartment still available?",
-        timestamp: "2024-01-16T10:30:00Z",
-        read: false
-      },
-      // Conversation 2 messages
-      {
-        conversationId: createdConversations[1].$id,
-        senderId: SAMPLE_TENANT_IDS[1],
-        senderName: "Sarah Johnson",
-        content: "I love the Victorian house! Can you tell me more about the neighborhood?",
-        timestamp: "2024-01-22T15:00:00Z",
-        read: true
-      },
-      {
-        conversationId: createdConversations[1].$id,
-        senderId: SAMPLE_AGENT_IDS[1],
-        senderName: "Agent Lisa",
-        content: "It's a wonderful historic district with great walkability and local cafes. Very safe and family-friendly!",
-        timestamp: "2024-01-22T15:30:00Z",
-        read: true
-      },
-      {
-        conversationId: createdConversations[1].$id,
-        senderId: SAMPLE_TENANT_IDS[1],
-        senderName: "Sarah Johnson",
-        content: "Thank you for the quick response!",
-        timestamp: "2024-01-22T15:45:00Z",
-        read: true
+    const messages = [];
+    createdConversations.forEach((conversation, index) => {
+      // Add 2-4 messages per conversation
+      const messageCount = Math.floor(Math.random() * 3) + 2;
+      for (let i = 0; i < messageCount; i++) {
+        messages.push({
+          conversationId: conversation.$id,
+          senderId: i % 2 === 0 ? SAMPLE_TENANT_IDS[index % SAMPLE_TENANT_IDS.length] : conversation.agentId,
+          senderName: i % 2 === 0 ? `Tenant ${index + 1}` : `Agent ${index + 1}`,
+          content: i % 2 === 0 ? 
+            ["Hi, I'm interested in this property", "Can you provide more details?", "Is it still available?", "Thank you for the information"][Math.floor(Math.random() * 4)] :
+            ["Hello! Yes, it's available", "I'd be happy to help", "Let me know if you need anything else", "You're welcome!"][Math.floor(Math.random() * 4)],
+          timestamp: new Date(Date.now() - (messageCount - i) * 2 * 60 * 60 * 1000).toISOString(),
+          read: Math.random() > 0.3
+        });
       }
-    ];
+    });
 
     for (const message of messages) {
       await databases.createDocument(
@@ -343,15 +249,16 @@ export const seedDatabase = async () => {
         ID.unique(),
         message
       );
-      console.log(`Created message from: ${message.senderName}`);
     }
+    console.log(`Created ${messages.length} messages`);
 
     console.log('✅ Database seeding completed successfully!');
-    console.log(`Created ${createdProperties.length} properties`);
+    console.log(`Created ${createdProperties.length} properties in Abuja, Nigeria`);
     console.log(`Created ${featuredRequests.length} featured requests`);
     console.log(`Created ${applications.length} applications`);
     console.log(`Created ${createdConversations.length} conversations`);
     console.log(`Created ${messages.length} messages`);
+    console.log('💰 All prices are in Nigerian Naira (₦)');
     
   } catch (error) {
     console.error('❌ Error seeding database:', error);
