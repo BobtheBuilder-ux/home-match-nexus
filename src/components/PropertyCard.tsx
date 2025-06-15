@@ -166,10 +166,12 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
               View Details
             </Button>
           </Link>
-          <Button variant="outline" className="border-primary-600 text-primary-600 hover:bg-primary-50">
-            <Calendar className="w-4 h-4 mr-1" />
-            Tour
-          </Button>
+          <Link to={`/property/${property.id}?tour=true`}>
+            <Button variant="outline" className="border-primary-600 text-primary-600 hover:bg-primary-50">
+              <Calendar className="w-4 h-4 mr-1" />
+              Tour
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

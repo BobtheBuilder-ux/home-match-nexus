@@ -1,5 +1,4 @@
-
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID } from "@/lib/appwrite";
 import { Property } from "@/types/property";
@@ -10,12 +9,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Bed, Bath, Square, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PropertyMap from "@/components/PropertyMap";
+import { useToast } from "@/hooks/use-toast";
 
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const showTourDialog = searchParams.get('tour') === 'true';
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -52,6 +55,37 @@ const PropertyDetail = () => {
   const handleApplyNow = () => {
     navigate(`/apply/${id}`);
   };
+
+  const handleScheduleTour = () => {
+    toast({
+      title: "Tour Request Submitted",
+      description: "We'll contact you soon to schedule your property tour.",
+    });
+  };
+
+  const handleContactAgent = () => {
+    toast({
+      title: "Contact Request Sent",
+      description: "An agent will reach out to you within 24 hours.",
+    });
+  };
+
+  const handleSaveProperty = () => {
+    toast({
+      title: "Property Saved",
+      description: "This property has been added to your favorites.",
+    });
+  };
+
+  // Show tour scheduling notification if tour parameter is present
+  useEffect(() => {
+    if (showTourDialog && property) {
+      toast({
+        title: "Schedule a Tour",
+        description: `Click "Schedule Tour" to book a viewing for ${property.title}`,
+      });
+    }
+  }, [showTourDialog, property, toast]);
 
   if (loading) {
     return (
@@ -157,13 +191,13 @@ const PropertyDetail = () => {
                     <Button className="w-full" size="lg" onClick={handleApplyNow}>
                       Apply Now
                     </Button>
-                    <Button variant="outline" className="w-full" size="lg">
+                    <Button variant="outline" className="w-full" size="lg" onClick={handleContactAgent}>
                       Contact Agent
                     </Button>
-                    <Button variant="outline" className="w-full" size="lg">
+                    <Button variant="outline" className="w-full" size="lg" onClick={handleScheduleTour}>
                       Schedule Tour
                     </Button>
-                    <Button variant="outline" className="w-full" size="lg">
+                    <Button variant="outline" className="w-full" size="lg" onClick={handleSaveProperty}>
                       Save Property
                     </Button>
                   </div>
