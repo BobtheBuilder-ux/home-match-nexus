@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, X } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -16,13 +16,11 @@ import { Property } from '@/types/property';
 interface FeaturedPropertiesTableProps {
   properties: Property[];
   getAgentName: (agentId: string) => string;
-  handleFeatureToggle: (propertyId: string, isFeatured: boolean) => void;
 }
 
 const FeaturedPropertiesTable: React.FC<FeaturedPropertiesTableProps> = ({
   properties,
-  getAgentName,
-  handleFeatureToggle
+  getAgentName
 }) => {
   return (
     <Card>
@@ -45,27 +43,23 @@ const FeaturedPropertiesTable: React.FC<FeaturedPropertiesTableProps> = ({
                 <TableCell>${property.price}/month</TableCell>
                 <TableCell>{new Date(property.dateAdded).toLocaleDateString()}</TableCell>
                 <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(`/property/${property.id}`, '_blank')}
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleFeatureToggle(property.id, true)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(`/property/${property.id}`, '_blank')}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
+        {properties.filter(p => p.isFeatured).length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No featured properties found.
+          </div>
+        )}
       </CardContent>
     </Card>
   );

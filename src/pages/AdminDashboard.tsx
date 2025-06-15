@@ -1,21 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus } from 'lucide-react';
 import { getProperties, updateProperty, deleteProperty } from '@/services/propertyService';
 import { getUserProfiles, updateUserApprovalStatus } from '@/services/adminService';
+import { getFeaturedRequests, updateFeaturedRequestStatus } from '@/services/featuredPropertyService';
 import { Property } from '@/types/property';
 import { UserProfile } from '@/services/userService';
+import { FeaturedRequest } from '@/services/featuredPropertyService';
 import { useToast } from '@/hooks/use-toast';
 import AdminStats from '@/components/admin/AdminStats';
 import AdminOverviewCards from '@/components/admin/AdminOverviewCards';
 import PropertiesTable from '@/components/admin/PropertiesTable';
 import FeaturedPropertiesTable from '@/components/admin/FeaturedPropertiesTable';
+import FeaturedRequestsTable from '@/components/admin/FeaturedRequestsTable';
 import UsersTable from '@/components/admin/UsersTable';
 import AdminSettings from '@/components/admin/AdminSettings';
 import AdminTabs from '@/components/admin/AdminTabs';
@@ -24,6 +23,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [properties, setProperties] = useState<Property[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [featuredRequests, setFeaturedRequests] = useState<FeaturedRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -34,12 +34,14 @@ const AdminDashboard = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [propertiesData, usersData] = await Promise.all([
+      const [propertiesData, usersData, requestsData] = await Promise.all([
         getProperties(),
-        getUserProfiles()
+        getUserProfiles(),
+        getFeaturedRequests()
       ]);
       setProperties(propertiesData);
       setUsers(usersData);
+      setFeaturedRequests(requestsData);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -60,7 +62,8 @@ const AdminDashboard = () => {
     pendingAgents: users.filter(u => u.role === 'agent' && !u.isApproved).length,
     activeMaintenanceTickets: 8, // TODO: implement maintenance service
     pendingApplications: 12, // TODO: implement applications service
-    monthlyRevenue: properties.reduce((sum, p) => sum + (p.price || 0), 0)
+    monthlyRevenue: properties.reduce((sum, p) => sum + (p.price || 0), 0),
+    pendingFeaturedRequests: featuredRequests.filter(r => r.status === 'pending').length
   };
 
   const handlePropertyStatusChange = async (propertyId: string, status: 'active' | 'draft' | 'rented') => {
@@ -103,26 +106,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleFeatureToggle = async (propertyId: string, isFeatured: boolean) => {
-    try {
-      await updateProperty(propertyId, { isFeatured: !isFeatured });
-      setProperties(properties.map(p => 
-        p.id === propertyId ? { ...p, isFeatured: !isFeatured } : p
-      ));
-      toast({
-        title: "Success",
-        description: `Property ${!isFeatured ? 'featured' : 'unfeatured'}`,
-      });
-    } catch (error) {
-      console.error('Error updating featured status:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update featured status",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleApproveAgent = async (userId: string) => {
     try {
       await updateUserApprovalStatus(userId, true);
@@ -158,6 +141,55 @@ const AdminDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to reject agent",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleApproveFeaturedRequest = async (requestId: string) => {
+    try {
+      const request = featuredRequests.find(r => r.id === requestId);
+      if (!request) return;
+
+      await updateFeaturedRequestStatus(requestId, 'approved');
+      await updateProperty(request.propertyId, { isFeatured: true });
+      
+      setFeaturedRequests(featuredRequests.map(r => 
+        r.id === requestId ? { ...r, status: 'approved' } : r
+      ));
+      setProperties(properties.map(p => 
+        p.id === request.propertyId ? { ...p, isFeatured: true } : p
+      ));
+      
+      toast({
+        title: "Success",
+        description: "Featured request approved",
+      });
+    } catch (error) {
+      console.error('Error approving featured request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve featured request",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRejectFeaturedRequest = async (requestId: string) => {
+    try {
+      await updateFeaturedRequestStatus(requestId, 'rejected');
+      setFeaturedRequests(featuredRequests.map(r => 
+        r.id === requestId ? { ...r, status: 'rejected' } : r
+      ));
+      toast({
+        title: "Success",
+        description: "Featured request rejected",
+      });
+    } catch (error) {
+      console.error('Error rejecting featured request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject featured request",
         variant: "destructive",
       });
     }
@@ -224,20 +256,32 @@ const AdminDashboard = () => {
                 properties={properties}
                 handlePropertyStatusChange={handlePropertyStatusChange}
                 handleDeleteProperty={handleDeleteProperty}
-                handleFeatureToggle={handleFeatureToggle}
               />
             </TabsContent>
 
             <TabsContent value="featured" className="space-y-6">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Featured Properties</h2>
-                <Badge variant="secondary">{properties.filter(p => p.isFeatured).length} Featured</Badge>
+                <h2 className="text-2xl font-bold">Featured Properties Management</h2>
+                <div className="flex gap-2">
+                  <Badge variant="secondary">{properties.filter(p => p.isFeatured).length} Featured</Badge>
+                  <Badge variant="outline">{stats.pendingFeaturedRequests} Pending Requests</Badge>
+                </div>
               </div>
-              <FeaturedPropertiesTable
-                properties={properties}
+              
+              <FeaturedRequestsTable
+                requests={featuredRequests}
+                onApprove={handleApproveFeaturedRequest}
+                onReject={handleRejectFeaturedRequest}
                 getAgentName={getAgentName}
-                handleFeatureToggle={handleFeatureToggle}
               />
+              
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold mb-4">Currently Featured Properties</h3>
+                <FeaturedPropertiesTable
+                  properties={properties}
+                  getAgentName={getAgentName}
+                />
+              </div>
             </TabsContent>
 
             <TabsContent value="maintenance" className="space-y-6">

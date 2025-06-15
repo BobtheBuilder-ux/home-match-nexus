@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Trash2, Star } from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -18,14 +18,12 @@ interface PropertiesTableProps {
   properties: Property[];
   handlePropertyStatusChange: (propertyId: string, status: 'active' | 'draft' | 'rented') => void;
   handleDeleteProperty: (propertyId: string) => void;
-  handleFeatureToggle: (propertyId: string, isFeatured: boolean) => void;
 }
 
 const PropertiesTable: React.FC<PropertiesTableProps> = ({
   properties,
   handlePropertyStatusChange,
-  handleDeleteProperty,
-  handleFeatureToggle
+  handleDeleteProperty
 }) => {
   return (
     <Card>
@@ -59,13 +57,11 @@ const PropertiesTable: React.FC<PropertiesTableProps> = ({
                   </select>
                 </TableCell>
                 <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleFeatureToggle(property.id, property.isFeatured || false)}
-                  >
-                    {property.isFeatured ? <Star className="w-4 h-4 fill-current" /> : <Star className="w-4 h-4" />}
-                  </Button>
+                  {property.isFeatured ? (
+                    <Badge variant="default" className="bg-yellow-100 text-yellow-800">Featured</Badge>
+                  ) : (
+                    <Badge variant="outline">Not Featured</Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
