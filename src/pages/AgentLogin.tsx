@@ -64,12 +64,6 @@ const AgentLogin = () => {
 
             <div className="mt-6 text-center">
               <p className="text-neutral-600">
-                Not an agent yet?{" "}
-                <a href="/for-agents" className="text-primary-600 hover:text-primary-700 font-medium">
-                  Join as an agent
-                </a>
-              </p>
-              <p className="text-neutral-600 mt-2">
                 Looking for rentals?{" "}
                 <a href="/login" className="text-primary-600 hover:text-primary-700 font-medium">
                   Customer login
