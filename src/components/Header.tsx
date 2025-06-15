@@ -34,6 +34,9 @@ const Header = () => {
   
   // Check if user is an approved agent
   const isApprovedAgent = userProfile?.role === 'agent' && userProfile?.isApproved;
+  
+  // Check if user is any agent (approved or not)
+  const isAgent = userProfile?.role === 'agent';
 
   return (
     <header className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-50">
@@ -67,14 +70,9 @@ const Header = () => {
             </Link>
             
             {isApprovedAgent && (
-              <>
-                <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                  List Property
-                </Link>
-                <Link to="/agent-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                  Dashboard
-                </Link>
-              </>
+              <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                List Property
+              </Link>
             )}
             
             {canAccessAdmin && (
@@ -83,9 +81,16 @@ const Header = () => {
               </Link>
             )}
             
-            <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
-              For Agents
-            </Link>
+            {/* Show Dashboard for agents, For Agents for non-agents */}
+            {isAgent ? (
+              <Link to="/agent-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                Dashboard
+              </Link>
+            ) : (
+              <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                For Agents
+              </Link>
+            )}
           </nav>
 
           {/* User Actions */}
@@ -161,14 +166,9 @@ const Header = () => {
                 </Link>
                 
                 {isApprovedAgent && (
-                  <>
-                    <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                      List Property
-                    </Link>
-                    <Link to="/agent-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                      Dashboard
-                    </Link>
-                  </>
+                  <Link to="/list-property" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                    List Property
+                  </Link>
                 )}
                 
                 {canAccessAdmin && (
@@ -177,9 +177,16 @@ const Header = () => {
                   </Link>
                 )}
                 
-                <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
-                  For Agents
-                </Link>
+                {/* Show Dashboard for agents, For Agents for non-agents */}
+                {isAgent ? (
+                  <Link to="/agent-dashboard" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                    Dashboard
+                  </Link>
+                ) : (
+                  <Link to="/for-agents" className="text-neutral-700 hover:text-primary-600 transition-colors">
+                    For Agents
+                  </Link>
+                )}
               </nav>
             </div>
           </div>

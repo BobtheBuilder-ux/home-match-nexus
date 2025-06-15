@@ -11,10 +11,9 @@ const AgentLogin = () => {
 
   useEffect(() => {
     if (user && userProfile) {
-      if (userProfile.role === 'agent' && userProfile.isApproved) {
+      if (userProfile.role === 'agent') {
+        // Always redirect agents to dashboard, regardless of approval status
         navigate('/agent-dashboard');
-      } else if (userProfile.role === 'agent' && !userProfile.isApproved) {
-        navigate('/for-agents');
       } else {
         navigate('/');
       }
