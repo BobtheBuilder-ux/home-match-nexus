@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Property } from "@/types/property";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import ContactAgentDialog from "./ContactAgentDialog";
+import ScheduleTourDialog from "./ScheduleTourDialog";
+import SavePropertyButton from "./SavePropertyButton";
 
 interface PropertySidebarProps {
   property: Property;
@@ -11,31 +13,9 @@ interface PropertySidebarProps {
 
 const PropertySidebar = ({ property }: PropertySidebarProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   const handleApplyNow = () => {
     navigate(`/apply/${property.id}`);
-  };
-
-  const handleScheduleTour = () => {
-    toast({
-      title: "Tour Request Submitted",
-      description: "We'll contact you soon to schedule your property tour.",
-    });
-  };
-
-  const handleContactAgent = () => {
-    toast({
-      title: "Contact Request Sent",
-      description: "An agent will reach out to you within 24 hours.",
-    });
-  };
-
-  const handleSaveProperty = () => {
-    toast({
-      title: "Property Saved",
-      description: "This property has been added to your favorites.",
-    });
   };
 
   return (
@@ -49,15 +29,18 @@ const PropertySidebar = ({ property }: PropertySidebarProps) => {
           <Button className="w-full" size="lg" onClick={handleApplyNow}>
             Apply Now
           </Button>
-          <Button variant="outline" className="w-full" size="lg" onClick={handleContactAgent}>
-            Contact Agent
-          </Button>
-          <Button variant="outline" className="w-full" size="lg" onClick={handleScheduleTour}>
-            Schedule Tour
-          </Button>
-          <Button variant="outline" className="w-full" size="lg" onClick={handleSaveProperty}>
-            Save Property
-          </Button>
+          <ContactAgentDialog 
+            propertyId={property.id} 
+            propertyTitle={property.title} 
+          />
+          <ScheduleTourDialog 
+            propertyId={property.id} 
+            propertyTitle={property.title} 
+          />
+          <SavePropertyButton 
+            propertyId={property.id} 
+            propertyTitle={property.title} 
+          />
         </div>
 
         <div className="text-sm text-gray-600">
