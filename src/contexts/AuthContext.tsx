@@ -9,7 +9,7 @@ interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (asAgent?: boolean) => Promise<void>;
   registerAsAgent: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           let profile = await getUserProfile(user.uid);
           
           if (!profile) {
-            // Create new user profile
+            // Create new user profile with default customer role
             const role = determineUserRole(user.email!);
             const newProfile = {
               userId: user.uid,
@@ -67,10 +67,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return unsubscribe;
   }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (asAgent: boolean = false) => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      // If signing in as agent, immediately update their role
+      if (asAgent) {
+        let profile = await getUserProfile(user.uid);
+        
+        if (!profile) {
+          // Create new agent profile
+          const newProfile = {
+            userId: user.uid,
+            email: user.email!,
+            displayName: user.displayName || 'User',
+            role: 'agent' as const,
+            photoURL: user.photoURL,
+            createdAt: new Date().toISOString(),
+            isApproved: false // Agents need approval
+          };
+          
+          profile = await createUserProfile(newProfile);
+        } else if (profile.role !== 'agent') {
+          // Update existing profile to agent
+          if (profile.id) {
+            const userRef = doc(db, 'users', profile.id);
+            await updateDoc(userRef, { role: 'agent', isApproved: false });
+            profile = { ...profile, role: 'agent', isApproved: false };
+          }
+        }
+        
+        setUserProfile(profile);
+      }
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;
