@@ -23,7 +23,7 @@ export const createUserProfile = async (userProfile: Omit<UserProfile, '$id'>) =
       ID.unique(),
       userProfile
     );
-    return response as UserProfile;
+    return response as unknown as UserProfile;
   } catch (error) {
     console.error('Error creating user profile:', error);
     throw error;
@@ -61,7 +61,7 @@ export const updateUserRole = async (userId: string, role: 'customer' | 'agent' 
         userProfile.$id!,
         { role }
       );
-      return response as UserProfile;
+      return response as unknown as UserProfile;
     }
     throw new Error('User profile not found');
   } catch (error) {
