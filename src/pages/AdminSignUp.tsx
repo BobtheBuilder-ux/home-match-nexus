@@ -57,12 +57,18 @@ const AdminSignUp = () => {
     }
 
     try {
+      console.log("Starting admin signup process...");
+      
       // Sign up with email and password
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email,
         password: password,
         options: {
-          emailRedirectTo: `${window.location.origin}/admin-login`
+          emailRedirectTo: `${window.location.origin}/admin-login`,
+          data: {
+            display_name: displayName || "Admin",
+            role: 'admin'
+          }
         }
       });
 
@@ -73,26 +79,48 @@ const AdminSignUp = () => {
         return;
       }
 
+      console.log("User created successfully:", data.user?.id);
+
       // Create admin profile if user was created
       if (data.user) {
-        const { error: profileError } = await supabase
+        console.log("Creating admin profile...");
+        
+        // Wait a moment for the user to be fully created
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .insert([{
+          .upsert([{
             id: data.user.id,
             email: email,
             display_name: displayName || "Admin",
             role: 'admin',
             is_approved: true
-          }]);
+          }], {
+            onConflict: 'id'
+          })
+          .select()
+          .single();
 
         if (profileError) {
           console.error("Error creating admin profile:", profileError);
-          setError("Account created but failed to set up admin profile");
+          console.error("Profile error details:", JSON.stringify(profileError, null, 2));
+          
+          // Try to delete the user account if profile creation failed
+          try {
+            await supabase.auth.admin.deleteUser(data.user.id);
+          } catch (deleteError) {
+            console.error("Failed to cleanup user after profile error:", deleteError);
+          }
+          
+          setError(`Failed to set up admin profile: ${profileError.message}`);
           setLoading(false);
           return;
         }
 
+        console.log("Admin profile created successfully:", profileData);
         toast.success("Admin account created successfully! Please check your email to confirm your account.");
+        
         // Redirect to admin login after successful signup
         setTimeout(() => {
           navigate('/admin-login');
