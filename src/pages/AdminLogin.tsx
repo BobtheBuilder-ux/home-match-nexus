@@ -32,12 +32,6 @@ const AdminLogin = () => {
     setError("");
     setLoading(true);
 
-    if (email !== "admin@mecwebcraft.com") {
-      setError("Only admin@mecwebcraft.com is authorized to access this portal");
-      setLoading(false);
-      return;
-    }
-
     try {
       // Sign in anonymously first to get a user object
       const userCredential = await signInAnonymously(auth);
