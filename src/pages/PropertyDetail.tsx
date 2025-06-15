@@ -1,7 +1,7 @@
+
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { databases, DATABASE_ID, PROPERTIES_COLLECTION_ID } from "@/lib/appwrite";
 import { Property } from "@/types/property";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -22,10 +22,23 @@ const PropertyDetail = () => {
       if (!id) return;
       
       try {
-        const propertyDoc = await getDoc(doc(db, 'properties', id));
-        if (propertyDoc.exists()) {
-          setProperty({ id: propertyDoc.id, ...propertyDoc.data() } as Property);
-        }
+        console.log('Fetching property with ID:', id);
+        const response = await databases.getDocument(
+          DATABASE_ID,
+          PROPERTIES_COLLECTION_ID,
+          id
+        );
+        
+        console.log('Property response:', response);
+        
+        // Transform the Appwrite document to match our Property interface
+        const { $id, $collectionId, $databaseId, $createdAt, $updatedAt, $permissions, ...data } = response;
+        const propertyData: Property = {
+          id: $id,
+          ...data
+        } as Property;
+        
+        setProperty(propertyData);
       } catch (error) {
         console.error('Error fetching property:', error);
       } finally {
