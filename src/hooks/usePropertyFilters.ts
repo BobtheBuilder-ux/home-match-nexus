@@ -1,18 +1,6 @@
 
 import { useMemo } from "react";
-
-interface Property {
-  id: string;
-  title: string;
-  location: string;
-  price: number;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  images: string[];
-  amenities: string[];
-  isNew?: boolean;
-}
+import { Property } from "@/types/property";
 
 interface Filters {
   location: string;
@@ -26,28 +14,42 @@ interface Filters {
 
 export const usePropertyFilters = (properties: Property[], filters: Filters) => {
   const filteredAndSortedProperties = useMemo(() => {
+    console.log('Filtering properties:', properties.length, 'with filters:', filters);
+    
     // Filter properties
     const filtered = properties.filter(property => {
-      if (filters.location && !property.location.toLowerCase().includes(filters.location.toLowerCase())) {
-        return false;
+      // Location filter
+      if (filters.location) {
+        const locationMatch = 
+          property.city.toLowerCase().includes(filters.location.toLowerCase()) ||
+          property.state.toLowerCase().includes(filters.location.toLowerCase()) ||
+          property.address.toLowerCase().includes(filters.location.toLowerCase());
+        if (!locationMatch) return false;
       }
-      if (filters.bedrooms && filters.bedrooms !== 'studio' && property.bedrooms !== parseInt(filters.bedrooms)) {
-        return false;
+      
+      // Property type filter
+      if (filters.type && filters.type !== 'any') {
+        if (property.propertyType !== filters.type) return false;
       }
-      if (filters.bedrooms === 'studio' && property.bedrooms !== 0) {
-        return false;
+      
+      // Bedrooms filter
+      if (filters.bedrooms && filters.bedrooms !== 'any') {
+        if (filters.bedrooms === 'studio' && property.bedrooms !== 0) {
+          return false;
+        } else if (filters.bedrooms !== 'studio' && property.bedrooms !== parseInt(filters.bedrooms)) {
+          return false;
+        }
       }
+      
+      // Price filter
       if (property.price < filters.priceMin || property.price > filters.priceMax) {
         return false;
       }
-      if (filters.amenities.length > 0) {
-        const hasAllAmenities = filters.amenities.every(amenity => 
-          property.amenities.includes(amenity)
-        );
-        if (!hasAllAmenities) return false;
-      }
+      
       return true;
     });
+
+    console.log('Filtered properties:', filtered.length);
 
     // Sort properties
     const sorted = [...filtered].sort((a, b) => {
@@ -59,7 +61,7 @@ export const usePropertyFilters = (properties: Property[], filters: Filters) => 
         case 'size':
           return b.area - a.area;
         case 'newest':
-          return b.isNew ? 1 : -1;
+          return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
         default:
           return 0;
       }

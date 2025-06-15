@@ -7,12 +7,16 @@ import SearchFilters from "@/components/SearchFilters";
 import SearchHeader from "@/components/SearchHeader";
 import PropertyList from "@/components/PropertyList";
 import { usePropertyFilters } from "@/hooks/usePropertyFilters";
+import { getProperties } from "@/services/propertyService";
+import { Property } from "@/types/property";
 
 const FindRentals = () => {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     location: "",
     type: "any",
@@ -38,32 +42,25 @@ const FindRentals = () => {
     }));
   }, [searchParams]);
 
-  // Mock properties data
-  const properties = [
-    {
-      id: "1",
-      title: "Modern Downtown Apartment",
-      location: "Downtown, Seattle, WA",
-      price: 2800,
-      bedrooms: 2,
-      bathrooms: 2,
-      area: 1200,
-      images: ["https://images.unsplash.com/photo-1721322800607-8c38375eef04?w=800&h=600&fit=crop"],
-      amenities: ["Gym", "Pool", "Parking"],
-      isNew: true
-    },
-    {
-      id: "2",
-      title: "Cozy Studio Apartment",
-      location: "Capitol Hill, Denver, CO",
-      price: 1800,
-      bedrooms: 0,
-      bathrooms: 1,
-      area: 500,
-      images: ["https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600&fit=crop"],
-      amenities: ["WiFi", "Laundry"]
-    }
-  ];
+  // Fetch properties from Firebase
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        console.log('Fetching properties from Firebase...');
+        const fetchedProperties = await getProperties();
+        console.log('Fetched properties:', fetchedProperties);
+        // Only show active properties
+        const activeProperties = fetchedProperties.filter(property => property.status === 'active');
+        setProperties(activeProperties);
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
 
   const filteredProperties = usePropertyFilters(properties, filters);
 
@@ -84,6 +81,18 @@ const FindRentals = () => {
     });
     setSearchQuery("");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">Loading properties...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

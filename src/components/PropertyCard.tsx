@@ -4,21 +4,10 @@ import { MapPin, Bed, Bath, Maximize, Heart, Share2, Calendar } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { Property } from "@/types/property";
 
 interface PropertyCardProps {
-  property: {
-    id: string;
-    title: string;
-    location: string;
-    price: number;
-    bedrooms: number;
-    bathrooms: number;
-    area: number;
-    images: string[];
-    amenities: string[];
-    isNew?: boolean;
-    isFeatured?: boolean;
-  };
+  property: Property;
 }
 
 const PropertyCard = ({ property }: PropertyCardProps) => {
@@ -33,18 +22,27 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
     setCurrentImageIndex((prev) => (prev - 1 + property.images.length) % property.images.length);
   };
 
+  // Create location string from address components
+  const location = `${property.city}, ${property.state}`;
+
   return (
     <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-neutral-100">
       {/* Image Carousel */}
       <div className="relative h-56 overflow-hidden group">
-        <img
-          src={property.images[currentImageIndex]}
-          alt={property.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {property.images && property.images.length > 0 ? (
+          <img
+            src={property.images[currentImageIndex]}
+            alt={property.title}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+            No image available
+          </div>
+        )}
         
         {/* Image Navigation */}
-        {property.images.length > 1 && (
+        {property.images && property.images.length > 1 && (
           <>
             <button
               onClick={prevImage}
@@ -80,7 +78,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {property.isNew && (
+          {property.status === 'active' && new Date(property.dateAdded) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
             <Badge className="bg-success text-white">New</Badge>
           )}
           {property.isFeatured && (
@@ -124,7 +122,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
         <div className="flex items-center text-neutral-600 mb-3">
           <MapPin className="w-4 h-4 mr-1" />
-          <span className="text-sm">{property.location}</span>
+          <span className="text-sm">{location}</span>
         </div>
 
         {/* Property Specs */}
@@ -143,21 +141,17 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
           </div>
         </div>
 
-        {/* Amenities */}
-        {property.amenities.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
-            {property.amenities.slice(0, 3).map((amenity, index) => (
-              <Badge key={index} variant="secondary" className="text-xs bg-neutral-100 text-neutral-700">
-                {amenity}
-              </Badge>
-            ))}
-            {property.amenities.length > 3 && (
-              <Badge variant="secondary" className="text-xs bg-neutral-100 text-neutral-700">
-                +{property.amenities.length - 3} more
-              </Badge>
-            )}
-          </div>
-        )}
+        {/* Property Type Badge */}
+        <div className="flex flex-wrap gap-1 mb-4">
+          <Badge variant="secondary" className="text-xs bg-neutral-100 text-neutral-700 capitalize">
+            {property.propertyType}
+          </Badge>
+          {property.status === 'active' && (
+            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+              Available
+            </Badge>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="flex gap-2">

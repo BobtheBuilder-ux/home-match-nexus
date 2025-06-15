@@ -2,19 +2,7 @@
 import { Grid, List, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PropertyCard from "@/components/PropertyCard";
-
-interface Property {
-  id: string;
-  title: string;
-  location: string;
-  price: number;
-  bedrooms: number;
-  bathrooms: number;
-  area: number;
-  images: string[];
-  amenities: string[];
-  isNew?: boolean;
-}
+import { Property } from "@/types/property";
 
 interface PropertyListProps {
   properties: Property[];
@@ -69,9 +57,11 @@ const PropertyList = ({ properties, viewMode, setViewMode, searchLocation }: Pro
         </div>
       )}
 
-      <div className="text-center mt-12">
-        <Button size="lg">Load More Properties</Button>
-      </div>
+      {properties.length > 0 && (
+        <div className="text-center mt-12">
+          <Button size="lg">Load More Properties</Button>
+        </div>
+      )}
     </div>
   );
 };
